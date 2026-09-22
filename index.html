@@ -67,7 +67,14 @@
     <div class="hero-top pad">
       <div class="hero-copy">
         <h1 id="hero-title" class="h-display" data-reveal>Cross chain routing.<br><span class="t-dim">Simplified.</span></h1>
-        <p class="hero-badge" data-reveal style="--i:1"><span class="sol-dot" aria-hidden="true"></span>Built natively on Solana</p>
+        <div class="hero-meta" data-reveal style="--i:1">
+          <div class="ca" role="group" aria-label="Token contract address">
+            <span class="ca-label">Token CA</span>
+            <span class="ca-value mono" id="ca-value">Coming Soon</span>
+            <span id="ca-copy"></span>
+          </div>
+          <p class="hero-badge"><span class="sol-dot" aria-hidden="true"></span>Built natively on Solana</p>
+        </div>
       </div>
       <div class="hero-side" data-reveal style="--i:2">
         <p class="lede">One interface for tokens and messages.<br>Cons finds the path.</p>
@@ -130,16 +137,6 @@
   </div>
 </section>
 
-<!-- Token CA -->
-<section class="ca-strip rule" aria-label="Token contract address">
-  <div class="frame">
-    <div class="ca" data-reveal>
-      <span class="ca-label">Token CA</span>
-      <span class="ca-value mono" id="ca-value">Coming Soon</span>
-      <span id="ca-copy"></span>
-    </div>
-  </div>
-</section>
 
 <!-- Solana primitives -->
 <section class="prims rule" aria-labelledby="prims-title">

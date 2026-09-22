@@ -3,7 +3,8 @@
 /* Hero */
 .hero .frame { border-top: 0; }
 .hero-top { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: end; gap: 48px; padding-top: 96px; padding-bottom: 64px; }
-.hero-badge { display: inline-flex; align-items: center; gap: 10px; margin-top: 22px; font-size: 14px; font-weight: 500; color: var(--text); padding: 6px 12px 6px 8px; border: 1px solid var(--line-2); border-radius: 999px; background: rgb(var(--ink) / 0.02); }
+.hero-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 26px; }
+.hero-badge { display: inline-flex; align-items: center; gap: 10px; height: 46px; font-size: 14px; font-weight: 500; color: var(--text); padding: 6px 14px 6px 12px; border: 1px solid var(--line-2); border-radius: 12px; background: rgb(var(--ink) / 0.02); }
 .sol-dot { width: 18px; height: 18px; border-radius: 6px; background: conic-gradient(from 200deg, #e8c289, #ab8f64, #3a3a3a, #e8c289); box-shadow: 0 0 0 3px rgb(var(--gold) / 0.08); }
 .hero-side { display: flex; flex-direction: column; gap: 22px; padding-bottom: 6px; max-width: 420px; justify-self: end; width: 100%; }
 .hero-ctas { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -94,12 +95,12 @@
 .c-table .row .best { font: 400 10.5px var(--mono); color: var(--accent); border: 1px solid var(--accent-line); border-radius: 5px; padding: 1px 5px; opacity: 0; transition: opacity 0.3s; }
 .c-table .row.sel .best { opacity: 1; }
 
-/* Token CA strip */
-.ca-strip .frame { display: flex; justify-content: center; padding: 22px var(--gutter); }
-.ca { display: inline-flex; align-items: center; gap: 14px; padding: 7px 7px 7px 16px; border: 1px solid var(--line-2); border-radius: 12px; background: linear-gradient(180deg, rgb(var(--ink) / 0.035), rgb(var(--ink) / 0.01)); box-shadow: 0 1px 0 rgb(var(--ink) / 0.04) inset; max-width: 100%; }
+/* Token CA, under the hero headline */
+.ca { display: inline-flex; align-items: center; gap: 14px; height: 46px; padding: 7px 7px 7px 16px; border: 1px solid var(--line-2); border-radius: 12px; background: var(--surface); box-shadow: 0 1px 2px rgb(var(--ink) / 0.05); max-width: 100%; }
 .ca-label { font-size: 13px; font-weight: 500; color: var(--muted); padding-right: 14px; border-right: 1px solid var(--line-2); white-space: nowrap; }
 .ca-value { font-size: 13.5px; color: var(--strong); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ca-value.pending { color: var(--accent); }
+.ca-value { max-width: 26ch; }
 
 /* Solana primitives grid, in the place of the reference logo wall */
 .prims-title { text-align: center; font-size: 14px; color: var(--muted); padding: 18px var(--gutter); border-bottom: 1px solid var(--line); }
