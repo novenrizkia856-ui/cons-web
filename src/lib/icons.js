@@ -45,8 +45,8 @@ export const icons = {
 
 /** The Cons mark: an open route ring and the node it arrives at. */
 export const markSvg = (id = "m") => `<svg viewBox="0 0 32 32" aria-hidden="true">
-  <defs><linearGradient id="${id}g" x1="4" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#fafafa"/><stop offset="1" stop-color="#8f8f8f"/></linearGradient></defs>
+  <defs><linearGradient id="${id}g" x1="4" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop style="stop-color:var(--strong)"/><stop offset="1" style="stop-color:var(--muted)"/></linearGradient></defs>
   <path d="M23.4 8.4A10.5 10.5 0 1 0 23.4 23.6" fill="none" stroke="url(#${id}g)" stroke-width="4" stroke-linecap="round"/>
   <path d="M12.5 16h7.5" stroke="url(#${id}g)" stroke-width="4" stroke-linecap="round"/>
-  <circle cx="26.2" cy="16" r="3.1" fill="#e8c289"/>
+  <circle cx="26.2" cy="16" r="3.1" style="fill:var(--accent-fill)"/>
 </svg>`;

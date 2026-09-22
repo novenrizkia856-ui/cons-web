@@ -66,7 +66,7 @@ function render(entry, index, entries) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escape(title)}</title>
 <meta name="description" content="${escape(`Cons documentation. ${heading}.`)}">
-<meta name="theme-color" content="#0a0a0a">
+<meta name="theme-color" content="#fafafa">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="docs.css">
 </head>

@@ -49,5 +49,6 @@ npm run audit    # copy rules and leftover check
 
 Ported from a reference frontend: its neutral grey scale, warm champagne accent
 (`#e8c289` / `#ab8f64`), Basier Circle and Geist Mono type, framed page rails, bordered two
-column panels, two tone headlines and fade up blur reveals, set on dark surfaces.
+column panels, two tone headlines and fade up blur reveals on its light surfaces,
+with the announcement bar, Solana band and footer kept dark as in the reference.
 All motion pauses offscreen and respects `prefers-reduced-motion`.
