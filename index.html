@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cons | Cross chain routing on Solana</title>
+<meta name="description" content="One Solana native interface for cross chain token and message routing. Cons finds the route.">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Cons">
+<meta property="og:title" content="Cons | Cross chain routing on Solana">
+<meta property="og:description" content="One interface for tokens and messages. One route. Every chain.">
+<meta property="og:image" content="/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Cons | Cross chain routing on Solana">
+<meta name="twitter:description" content="One interface for tokens and messages. One route. Every chain.">
+<meta name="twitter:image" content="/og.png">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/fonts/basier-circle-medium.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/basier-circle-regular.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/src/styles/base.css">
+<link rel="stylesheet" href="/src/styles/landing.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="announce">
+  <div class="frame">
+    <span class="dot" aria-hidden="true"></span>
+    <span>Solana native routing layer</span>
+    <a data-link="docs" href="/docs/">Read the docs <span aria-hidden="true">→</span></a>
+  </div>
+</div>
+
+<header class="nav">
+  <div class="frame">
+    <a class="brand" href="/" aria-label="Cons home"><span data-mark></span>cons</a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#routing">Routing</a>
+      <a href="#lifecycle">Lifecycle</a>
+      <a href="#developers">Developers</a>
+      <a data-link="docs" href="/docs/">Docs</a>
+      <a data-link="github" href="#">GitHub</a>
+    </nav>
+    <div class="nav-actions">
+      <a class="btn btn-ghost btn-sm" data-link="docs" href="/docs/">Docs</a>
+      <a class="btn btn-primary btn-sm" href="/app.html">Open App</a>
+      <button class="menu-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="mobile-menu"><span></span></button>
+    </div>
+  </div>
+</header>
+<nav class="mobile-menu" id="mobile-menu" aria-label="Mobile">
+  <a href="#routing">Routing</a>
+  <a href="#lifecycle">Lifecycle</a>
+  <a href="#developers">Developers</a>
+  <a data-link="docs" href="/docs/">Docs</a>
+  <a data-link="github" href="#">GitHub</a>
+  <a href="/app.html">Open App</a>
+</nav>
+
+<main id="main">
+
+<!-- Hero -->
+<section class="hero" aria-labelledby="hero-title">
+  <div class="frame">
+    <div class="hero-top pad">
+      <div class="hero-copy">
+        <h1 id="hero-title" class="h-display" data-reveal>Cross chain routing.<br><span class="t-dim">Simplified.</span></h1>
+        <p class="hero-badge" data-reveal style="--i:1"><span class="sol-dot" aria-hidden="true"></span>Built natively on Solana</p>
+      </div>
+      <div class="hero-side" data-reveal style="--i:2">
+        <p class="lede">One interface for tokens and messages.<br>Cons finds the path.</p>
+        <div class="hero-ctas">
+          <a class="btn btn-primary" href="/app.html">Open App</a>
+          <a class="btn btn-ghost" data-link="docs" href="/docs/"><span data-icon="book"></span>Docs</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-tabs" role="tablist" aria-label="Route type">
+      <button role="tab" id="tab-token" aria-selected="true" aria-controls="hero-console" data-mode="token"><span data-icon="token"></span>Token route</button>
+      <button role="tab" id="tab-message" aria-selected="false" aria-controls="hero-console" data-mode="message" tabindex="-1"><span data-icon="message"></span>Message route</button>
+      <span class="tab-ink" aria-hidden="true"></span>
+    </div>
+
+    <div class="hero-stage">
+      <div class="stage-grid" aria-hidden="true"></div>
+      <div class="console" id="hero-console" role="tabpanel" aria-labelledby="tab-token" data-reveal="scale" style="--i:3">
+        <div class="console-bar">
+          <div class="crumbs"><span class="ws"><span data-mark></span>Cons</span><span class="sep">/</span><span>Routes</span><span class="sep">/</span><span class="t-strong" data-h="title">New token route</span></div>
+          <div class="bar-right"><span class="tag warn plain" data-h="pref">Best Route</span><span class="tag plain">Illustrative</span></div>
+        </div>
+        <div class="console-body">
+          <aside class="c-request" aria-label="Request">
+            <p class="c-label">Request</p>
+            <dl class="fields" data-h="fields"></dl>
+            <p class="c-label">Priority</p>
+            <div class="prio" data-h="prio">
+              <span data-p="best">Best</span><span data-p="cost">Cost</span><span data-p="speed">Speed</span><span data-p="security">Security</span>
+            </div>
+          </aside>
+          <div class="c-graph">
+            <svg class="route-svg" viewBox="0 0 600 320" role="img" aria-label="Cons compares providers and routes the request to the selected one" data-h="svg"></svg>
+            <p class="graph-note mono" data-h="note">Discovering routes</p>
+          </div>
+          <aside class="c-status" aria-label="Lifecycle">
+            <p class="c-label">Lifecycle</p>
+            <ol class="life" data-h="life">
+              <li data-s="CREATED"><i></i>Created<time></time></li>
+              <li data-s="SUBMITTED"><i></i>Submitted<time></time></li>
+              <li data-s="IN_TRANSIT"><i></i>In Transit<time></time></li>
+              <li data-s="DESTINATION_RECEIVED"><i></i>Received<time></time></li>
+              <li data-s="CONFIRMED"><i></i>Confirmed<time></time></li>
+            </ol>
+            <div class="mini-receipt">
+              <p class="c-label">Receipt</p>
+              <div><span>Route</span><b data-h="r-route">Pending</b></div>
+              <div><span>Source</span><b data-h="r-src">Solana</b></div>
+              <div><span>Status</span><b data-h="r-status">Created</b></div>
+            </div>
+          </aside>
+        </div>
+        <div class="c-table" role="table" aria-label="Route comparison, illustrative">
+          <div class="row head" role="row"><span role="columnheader">Provider</span><span role="columnheader">Cost</span><span role="columnheader">ETA</span><span role="columnheader">Security</span><span role="columnheader">Status</span><span role="columnheader">Score</span></div>
+          <div data-h="rows"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Token CA -->
+<section class="ca-strip rule" aria-label="Token contract address">
+  <div class="frame">
+    <div class="ca" data-reveal>
+      <span class="ca-label">Token CA</span>
+      <span class="ca-value mono" id="ca-value">Coming Soon</span>
+      <span id="ca-copy"></span>
+    </div>
+  </div>
+</section>
+
+<!-- Solana primitives -->
+<section class="prims rule" aria-labelledby="prims-title">
+  <div class="frame">
+    <p class="prims-title" id="prims-title">Speaks Solana natively</p>
+    <ul class="prims-grid">
+      <li data-reveal style="--i:0"><span data-icon="program"></span>Program</li>
+      <li data-reveal style="--i:1"><span data-icon="pda"></span>PDA</li>
+      <li data-reveal style="--i:2"><span data-icon="instruction"></span>Instruction</li>
+      <li data-reveal style="--i:3"><span data-icon="account"></span>Account</li>
+      <li data-reveal style="--i:4"><span data-icon="mint"></span>Mint</li>
+      <li data-reveal style="--i:1"><span data-icon="coin"></span>SPL Token</li>
+      <li data-reveal style="--i:2"><span data-icon="token2022"></span>Token 2022</li>
+      <li data-reveal style="--i:3"><span data-icon="ata"></span>Token Account</li>
+      <li data-reveal style="--i:4"><span data-icon="cpi"></span>CPI</li>
+      <li data-reveal style="--i:5"><span data-icon="signature"></span>Signature</li>
+    </ul>
+  </div>
+</section>
+
+<!-- Discover, compare, confirm -->
+<section class="trio rule" aria-labelledby="trio-title">
+  <div class="frame">
+    <h2 id="trio-title" class="trio-title h-section pad" data-reveal><span class="t-dim">Cons</span> discovers <span class="t-dim">routes,</span> compares <span class="t-dim">providers and</span> confirms <span class="t-dim">delivery.</span></h2>
+    <div class="trio-grid">
+      <article class="trio-card" data-reveal style="--i:0">
+        <div class="trio-vis vis-discover" data-live aria-hidden="true">
+          <svg viewBox="0 0 320 180">
+            <g class="links">
+              <path d="M70 90 C120 40 180 40 240 50"/><path d="M70 90 C130 90 190 90 250 110"/><path d="M70 90 C120 140 180 150 230 150"/>
+            </g>
+            <g class="nodes">
+              <g transform="translate(70 90)"><circle r="20" class="n-sol"/><text y="4">SOL</text></g>
+              <g transform="translate(248 48)"><circle r="16"/><text y="4">ETH</text></g>
+              <g transform="translate(258 112)"><circle r="16"/><text y="4">BASE</text></g>
+              <g transform="translate(232 152)"><circle r="12" class="n-dim"/><text y="4">+</text></g>
+            </g>
+          </svg>
+        </div>
+        <p class="caption"><span data-icon="search"></span><b>Discover routes.</b> Every compatible path, found in one call.</p>
+      </article>
+      <article class="trio-card" data-reveal style="--i:1">
+        <div class="trio-vis vis-compare" data-live aria-hidden="true">
+          <div class="bars">
+            <div><span>Provider A</span><i style="--w:72%"></i></div>
+            <div class="win"><span>Provider C</span><i style="--w:92%"></i></div>
+            <div><span>Provider B</span><i style="--w:58%"></i></div>
+            <div><span>Provider D</span><i style="--w:40%"></i></div>
+          </div>
+        </div>
+        <p class="caption"><span data-icon="split"></span><b>Compare providers.</b> Cost, speed and security, side by side.</p>
+      </article>
+      <article class="trio-card" data-reveal style="--i:2">
+        <div class="trio-vis vis-confirm" data-live aria-hidden="true">
+          <ul class="ticks">
+            <li>Created</li><li>Submitted</li><li>In Transit</li><li>Received</li><li>Confirmed</li>
+          </ul>
+        </div>
+        <p class="caption"><span data-icon="shield"></span><b>Confirm delivery.</b> One status model from signature to receipt.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- Statement -->
+<section class="statement rule" aria-label="Statement">
+  <div class="frame">
+    <div class="tiles tiles-a" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="tiles tiles-b" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    <blockquote data-reveal>
+      <p class="statement-text">One route.<br><span class="t-dim">Every chain.</span></p>
+      <footer><span class="mini-mark" data-mark></span>Integrate once. Cons handles the paths.</footer>
+    </blockquote>
+  </div>
+</section>
+
+<!-- Routing -->
+<section class="features rule" id="routing" aria-labelledby="routing-title">
+  <div class="frame">
+    <div class="section-head">
+      <span class="chip" data-reveal><span data-icon="route"></span>Routing</span>
+      <h2 id="routing-title" class="h-section" data-reveal style="--i:1"><span class="t-dim">Describe the intent.</span><br>Cons finds the path.</h2>
+      <p class="lede" data-reveal style="--i:2">Tokens and messages share one engine, one lifecycle and one receipt.</p>
+    </div>
+
+    <div class="fgrid">
+      <!-- Token routing -->
+      <article class="fcell" data-reveal>
+        <div class="fvis vis-token" data-live aria-hidden="true">
+          <div class="chain-card from"><span class="cc-top">From</span><b>Solana</b><span class="mono">100.00 USDC</span><span class="cc-meta">SPL Token</span></div>
+          <svg class="token-track" viewBox="0 0 220 120" preserveAspectRatio="none"><path id="track" d="M0 60 C60 60 70 20 110 20 S160 60 220 60"/><path class="track-lit" d="M0 60 C60 60 70 20 110 20 S160 60 220 60"/></svg>
+          <span class="coin">$</span>
+          <div class="chain-card to"><span class="cc-top">To</span><b>Base</b><span class="mono">100.00 USDC</span><span class="cc-meta">Recipient</span></div>
+          <div class="token-foot"><span class="tag plain">via Provider C</span><span class="tag ok">Confirmed</span></div>
+        </div>
+        <p class="caption"><span data-icon="token"></span><b>Token routing.</b> Assets resolved by mint, never by ticker alone.</p>
+      </article>
+
+      <!-- Message routing -->
+      <article class="fcell" data-reveal style="--i:1">
+        <div class="fvis vis-message" data-live aria-hidden="true">
+          <div class="marquee"><div class="track"><span>sync_state</span><span>governance.execute</span><span>notify_deposit</span><span>set_config</span><span>unlock_request</span><span>sync_state</span><span>governance.execute</span><span>notify_deposit</span><span>set_config</span><span>unlock_request</span></div></div>
+          <div class="marquee rev"><div class="track"><span>rebalance(vault)</span><span>attest_price</span><span>close_position</span><span>mint_receipt</span><span>rebalance(vault)</span><span>attest_price</span><span>close_position</span><span>mint_receipt</span></div></div>
+          <div class="marquee"><div class="track"><span>bridge_intent</span><span>update_registry</span><span>claim_rewards</span><span>pause_market</span><span>bridge_intent</span><span>update_registry</span><span>claim_rewards</span><span>pause_market</span></div></div>
+          <div class="msg-path">
+            <span class="mp-node">Solana program</span><span class="mp-line"><i class="packet"></i></span><span class="mp-node hub">Cons</span><span class="mp-line"><i class="packet late"></i></span><span class="mp-node">Destination app</span>
+          </div>
+          <div class="msg-states"><span class="tag ok">Delivered</span><span class="tag info">Execution reported separately</span></div>
+        </div>
+        <p class="caption"><span data-icon="message"></span><b>Message routing.</b> Arbitrary payloads to programs and contracts. Delivery and execution tracked apart.</p>
+      </article>
+
+      <!-- Route intelligence -->
+      <article class="fcell" data-reveal>
+        <div class="fvis vis-intel">
+          <div class="seg" role="radiogroup" aria-label="Routing preference" data-pref-group>
+            <button role="radio" aria-checked="true" data-pref="best">Best</button>
+            <button role="radio" aria-checked="false" data-pref="cost" tabindex="-1">Cost</button>
+            <button role="radio" aria-checked="false" data-pref="speed" tabindex="-1">Speed</button>
+            <button role="radio" aria-checked="false" data-pref="security" tabindex="-1">Security</button>
+          </div>
+          <ul class="factors" id="factors">
+            <li data-f="availability"><span>Availability</span><i class="gate">Required</i></li>
+            <li data-f="cost"><span>Cost</span><em><b></b></em><output></output></li>
+            <li data-f="speed"><span>Speed</span><em><b></b></em><output></output></li>
+            <li data-f="security"><span>Security</span><em><b></b></em><output></output></li>
+            <li data-f="reliability"><span>Reliability</span><em><b></b></em><output></output></li>
+          </ul>
+        </div>
+        <p class="caption"><span data-icon="layers"></span><b>Route intelligence.</b> Eligibility first. Then cost, speed, security and health.</p>
+      </article>
+
+      <!-- Route comparison -->
+      <article class="fcell" data-reveal style="--i:1">
+        <div class="fvis vis-compare-table">
+          <div class="cmp-head">
+            <span class="mono t-muted">Solana to Base · 100 USDC</span>
+            <span class="tag plain">Illustrative</span>
+          </div>
+          <div class="cmp" role="table" aria-label="Route comparison, illustrative">
+            <div class="cmp-row head" role="row"><span role="columnheader">Provider</span><span role="columnheader">Cost</span><span role="columnheader">ETA</span><span role="columnheader">Security</span><span role="columnheader">Status</span></div>
+            <div class="cmp-body" id="cmp-body"></div>
+          </div>
+        </div>
+        <p class="caption"><span data-icon="split"></span><b>Route comparison.</b> Every eligible provider, normalized into one view.</p>
+      </article>
+
+      <!-- Lifecycle -->
+      <article class="fcell" id="lifecycle" data-reveal>
+        <div class="fvis vis-life" data-live>
+          <ol class="stepper" id="stepper" aria-label="Lifecycle states">
+            <li data-s="CREATED"><i></i><span>Created</span></li>
+            <li data-s="SUBMITTED"><i></i><span>Submitted</span></li>
+            <li data-s="IN_TRANSIT"><i></i><span>In Transit</span></li>
+            <li data-s="DESTINATION_RECEIVED"><i></i><span>Received</span></li>
+            <li data-s="CONFIRMED"><i></i><span>Confirmed</span></li>
+          </ol>
+          <div class="alt-states" id="alt-states" aria-label="Alternate states">
+            <span data-s="RETRYING" class="tag warn">Retrying</span>
+            <span data-s="FAILED" class="tag err">Failed</span>
+            <span data-s="EXPIRED" class="tag err">Expired</span>
+            <span data-s="CANCELLED" class="tag">Cancelled</span>
+          </div>
+          <p class="life-log mono" id="life-log" aria-live="off">CREATED</p>
+        </div>
+        <p class="caption"><span data-icon="activity"></span><b>One lifecycle.</b> Every provider state maps to nine Cons states.</p>
+      </article>
+
+      <!-- Receipt -->
+      <article class="fcell" data-reveal style="--i:1">
+        <div class="fvis vis-receipt">
+          <div class="receipt">
+            <div class="rc-top"><span class="rc-mark" data-mark></span><span>Route receipt</span><span class="tag ok">Confirmed</span></div>
+            <dl>
+              <div><dt>Request</dt><dd class="mono">Request ID</dd></div>
+              <div><dt>Source</dt><dd>Solana <span class="mono t-muted">signature</span></dd></div>
+              <div><dt>Destination</dt><dd>Base <span class="mono t-muted">tx hash</span></dd></div>
+              <div><dt>Provider</dt><dd>Selected route</dd></div>
+              <div><dt>Submitted</dt><dd class="mono">timestamp</dd></div>
+              <div><dt>Confirmed</dt><dd class="mono">timestamp</dd></div>
+            </dl>
+            <div class="rc-perf" aria-hidden="true"></div>
+          </div>
+        </div>
+        <p class="caption"><span data-icon="receipt"></span><b>Unified receipt.</b> Solana signature and destination ID in one record.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- Reliability -->
+<section class="features rule" id="reliability" aria-labelledby="rel-title">
+  <div class="frame">
+    <div class="section-head">
+      <span class="chip" data-reveal><span data-icon="shield"></span>Reliability</span>
+      <h2 id="rel-title" class="h-section" data-reveal style="--i:1">Reliable by design.<br><span class="t-dim">Explicit by default.</span></h2>
+      <p class="lede" data-reveal style="--i:2">Every trust assumption stays visible and selectable.</p>
+    </div>
+    <div class="fgrid">
+      <article class="fcell" data-reveal>
+        <div class="fvis vis-health" data-live>
+          <ul class="health">
+            <li><span class="pulse ok"></span>Provider A<span class="tag ok">Active</span></li>
+            <li><span class="pulse ok"></span>Provider B<span class="tag ok">Active</span></li>
+            <li><span class="pulse ok"></span>Provider C<span class="tag ok">Active</span></li>
+            <li><span class="pulse warn"></span>Provider D<span class="tag warn">Degraded</span></li>
+            <li><span class="pulse off"></span>Provider E<span class="tag">Paused</span></li>
+          </ul>
+          <span class="corner tag plain">Illustrative</span>
+        </div>
+        <p class="caption"><span data-icon="pulse"></span><b>Provider health.</b> Supported is not the same as usable. Cons checks both.</p>
+      </article>
+
+      <article class="fcell" data-reveal style="--i:1">
+        <div class="fvis vis-fallback" data-live aria-hidden="true">
+          <div class="fb-row r1"><span class="fb-node">Route A</span><span class="fb-line"></span><span class="tag err">Timeout</span></div>
+          <div class="fb-row r2"><span class="fb-node">Route A</span><span class="fb-line"></span><span class="tag warn">Retry · same request</span></div>
+          <div class="fb-row r3"><span class="fb-node lit">Route B</span><span class="fb-line"></span><span class="tag ok">Fallback · policy allowed</span></div>
+        </div>
+        <p class="caption"><span data-icon="retry"></span><b>Retry and fallback.</b> Retry repeats the route. Fallback switches it, only when policy allows.</p>
+      </article>
+
+      <article class="fcell" data-reveal>
+        <div class="fvis vis-quorum" data-live aria-hidden="true">
+          <svg viewBox="0 0 420 200">
+            <g class="q-links">
+              <path d="M70 100 C120 100 130 40 190 40"/><path d="M70 100 L190 100"/><path d="M70 100 C120 100 130 160 190 160"/>
+              <path class="q2" d="M240 40 C290 40 290 100 330 100"/><path class="q2" d="M240 100 L330 100"/><path class="q2" d="M240 160 C290 160 290 100 330 100"/>
+            </g>
+            <g class="q-nodes">
+              <g transform="translate(46 100)"><rect x="-34" y="-16" width="68" height="32" rx="9"/><text y="4">Solana</text></g>
+              <g class="qa" transform="translate(215 40)"><rect x="-28" y="-14" width="56" height="28" rx="8"/><text y="4">A</text></g>
+              <g class="qb" transform="translate(215 100)"><rect x="-28" y="-14" width="56" height="28" rx="8"/><text y="4">B</text></g>
+              <g class="qc" transform="translate(215 160)"><rect x="-28" y="-14" width="56" height="28" rx="8"/><text y="4">C</text></g>
+              <g class="qq" transform="translate(372 100)"><rect x="-44" y="-22" width="88" height="44" rx="11"/><text y="-3">Quorum</text><text class="qcount" y="13">2 of 3</text></g>
+            </g>
+          </svg>
+        </div>
+        <p class="caption"><span data-icon="split"></span><b>Multi path messaging.</b> Require two of three confirmations before a message counts.</p>
+      </article>
+
+      <article class="fcell" data-reveal style="--i:1">
+        <div class="fvis vis-policy">
+          <ul class="policy" id="policy">
+            <li><span>Provider A</span><button type="button" role="switch" aria-checked="true" aria-label="Allow Provider A"><i></i></button></li>
+            <li><span>Provider B</span><button type="button" role="switch" aria-checked="true" aria-label="Allow Provider B"><i></i></button></li>
+            <li><span>Provider C</span><button type="button" role="switch" aria-checked="true" aria-label="Allow Provider C"><i></i></button></li>
+            <li><span>Provider D</span><button type="button" role="switch" aria-checked="false" aria-label="Allow Provider D"><i></i></button></li>
+          </ul>
+          <p class="policy-out mono"><span id="policy-count">3</span> eligible routes</p>
+        </div>
+        <p class="caption"><span data-icon="lock"></span><b>Provider policy.</b> Allowlist the providers your application trusts. Try it.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- Solana band -->
+<section class="band" aria-labelledby="band-title">
+  <div class="frame">
+    <div class="band-head section-head">
+      <span class="chip" data-reveal><span data-icon="program"></span>Solana native</span>
+      <h2 id="band-title" class="h-section" data-reveal style="--i:1">Native to Solana.<br><span class="t-dim">Honest about the rest.</span></h2>
+      <p class="lede" data-reveal style="--i:2">Deterministic rules live on chain. Dynamic routing stays off chain.</p>
+    </div>
+    <div class="emblems">
+      <div class="emblem" data-reveal><div class="em-ring" data-live><span data-icon="pda"></span></div><p>Program and PDAs</p></div>
+      <div class="emblem" data-reveal style="--i:1"><div class="em-ring" data-live><span data-icon="token2022"></span></div><p>SPL Token and Token 2022</p></div>
+      <div class="emblem" data-reveal style="--i:2"><div class="em-ring" data-live><span data-icon="signature"></span></div><p>Signatures in every receipt</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Developers -->
+<section class="dev rule" id="developers" aria-labelledby="dev-title">
+  <div class="frame">
+    <div class="dev-lines" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="section-head">
+      <span class="chip" data-reveal><span data-icon="code"></span>Developers</span>
+      <h2 id="dev-title" class="h-section" data-reveal style="--i:1">Ship cross chain<br><span class="t-dim">like a single call.</span></h2>
+      <p class="lede" data-reveal style="--i:2">One interface. One status model. Multiple providers.</p>
+    </div>
+    <div class="dev-wrap pad">
+      <figure class="code-card" data-reveal>
+        <figcaption><span class="mono">transfer.ts</span><span class="tag plain">Interface</span></figcaption>
+<pre class="mono"><code><span class="k">const</span> route = <span class="k">await</span> cons.<span class="f">transfer</span>({
+  sourceChain: <span class="s">"solana"</span>,
+  destinationChain: <span class="s">"base"</span>,
+  token: <span class="s">"USDC"</span>,
+  amount: <span class="s">"100"</span>,
+  recipient,
+  priority: <span class="s">"cost"</span>
+})
+
+route.status  <span class="c">// IN_TRANSIT</span></code></pre>
+      </figure>
+      <ul class="dev-grid">
+        <li data-reveal style="--i:0"><span data-icon="code"></span><b>One interface</b><p>Routes, quotes and requests through one SDK and API.</p></li>
+        <li data-reveal style="--i:1"><span data-icon="activity"></span><b>One status model</b><p>Provider states normalized into Cons states.</p></li>
+        <li data-reveal style="--i:2"><span data-icon="providers"></span><b>Provider adapters</b><p>Quote, prepare, send, status and verify. Same shape everywhere.</p></li>
+        <li data-reveal style="--i:3"><span data-icon="receipt"></span><b>Normalized receipts</b><p>Chain specific IDs without forcing one hash format.</p></li>
+        <li data-reveal style="--i:4"><span data-icon="lock"></span><b>Route commitment</b><p>A signed request cannot silently switch routes.</p></li>
+        <li data-reveal style="--i:5"><span data-icon="eye"></span><b>Observability</b><p>Signatures, program errors and retries in one view.</p></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Integrate once -->
+<section class="steps rule" aria-labelledby="steps-title">
+  <div class="frame">
+    <div class="steps-wrap pad">
+      <div class="steps-head" data-reveal>
+        <h2 id="steps-title" class="h-section">Integrate once.<br><span class="t-dim">Route everywhere.</span></h2>
+        <p class="lede">No bridge by bridge integrations.</p>
+        <a class="btn btn-primary" href="/app.html">Open App</a>
+      </div>
+      <ol class="steps-list">
+        <li data-reveal style="--i:1"><span class="num mono">01</span><b>Describe the intent</b><p>Source, destination, asset or payload, and policy.</p></li>
+        <li data-reveal style="--i:2"><span class="num mono">02</span><b>Cons selects the route</b><p>Eligible routes compared. One committed.</p></li>
+        <li data-reveal style="--i:3"><span class="num mono">03</span><b>Track one receipt</b><p>From Solana signature to confirmation.</p></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="frame">
+    <div class="footer-cta">
+      <div data-reveal>
+        <div class="mark-tile" data-mark></div>
+        <h2 class="h-section">Route anything.<br><span class="t-dim">Across every supported chain.</span></h2>
+      </div>
+      <div class="actions" data-reveal style="--i:1">
+        <a class="btn btn-primary" href="/app.html">Open App</a>
+        <a class="btn btn-ghost" data-link="docs" href="/docs/">Docs</a>
+      </div>
+    </div>
+    <div class="footer-cols">
+      <div><h4>App</h4><ul>
+        <li><a href="/app.html#/token">Token routing</a></li>
+        <li><a href="/app.html#/message">Message routing</a></li>
+        <li><a href="/app.html#/activity">Activity</a></li>
+        <li><a href="/app.html#/providers">Providers</a></li>
+      </ul></div>
+      <div><h4>Product</h4><ul>
+        <li><a href="#routing">Routing</a></li>
+        <li><a href="#lifecycle">Lifecycle</a></li>
+        <li><a href="#reliability">Reliability</a></li>
+        <li><a href="#developers">Developers</a></li>
+      </ul></div>
+      <div><h4>Docs</h4><ul>
+        <li><a data-link="docs" href="/docs/">Overview</a></li>
+        <li><a data-link="docs" data-page="system-architecture.html" href="/docs/system-architecture.html">Architecture</a></li>
+        <li><a data-link="docs" data-page="solana-program-model.html" href="/docs/solana-program-model.html">Solana program</a></li>
+        <li><a data-link="docs" data-page="lifecycle-and-receipts.html" href="/docs/lifecycle-and-receipts.html">Lifecycle</a></li>
+      </ul></div>
+      <div><h4>Resources</h4><ul>
+        <li><a data-link="docs" data-page="developer-interface.html" href="/docs/developer-interface.html">Developer interface</a></li>
+        <li><a data-link="docs" data-page="use-cases.html" href="/docs/use-cases.html">Use cases</a></li>
+        <li><a data-link="docs" data-page="glossary.html" href="/docs/glossary.html">Glossary</a></li>
+        <li><a data-link="github" href="#">GitHub</a></li>
+      </ul></div>
+    </div>
+    <div class="footer-giant" aria-hidden="true">
+      <div class="grid"></div>
+      <svg viewBox="0 0 32 32">
+        <defs>
+          <linearGradient id="gg" x1="6" y1="4" x2="26" y2="30" gradientUnits="userSpaceOnUse"><stop stop-color="#ffffff"/><stop offset=".45" stop-color="#9c9c9c"/><stop offset=".55" stop-color="#e9e9e9"/><stop offset="1" stop-color="#4a4a4a"/></linearGradient>
+        </defs>
+        <path d="M23.4 8.4A10.5 10.5 0 1 0 23.4 23.6" fill="none" stroke="url(#gg)" stroke-width="4" stroke-linecap="round"/>
+        <path d="M12.5 16h7.5" stroke="url(#gg)" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="26.2" cy="16" r="3.1" fill="#e8c289"/>
+      </svg>
+    </div>
+    <div class="footer-base">
+      <span>© <span data-year>2026</span> Cons</span>
+      <nav aria-label="Footer"><a href="/app.html">App</a><a data-link="docs" href="/docs/">Docs</a><a data-link="github" href="#">GitHub</a></nav>
+    </div>
+  </div>
+</footer>
+
+<script type="module" src="/src/landing/main.js"></script>
+</body>
+</html>
