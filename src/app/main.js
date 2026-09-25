@@ -1,6 +1,6 @@
 import { consConfig, integration } from "../config/cons.js";
 import { initChrome } from "../lib/chrome.js";
-import { markSvg } from "../lib/icons.js";
+import { markImg, markTone } from "../lib/icons.js";
 import { dataMode, getChains, getTokens } from "../services/routing.js";
 import * as wallet from "../services/wallet.js";
 import { esc, initModal, openModal, toast } from "./ui.js";
@@ -126,7 +126,7 @@ async function route() {
   try {
     if (!ctxBase) {
       const [chains, tokens] = await Promise.all([getChains(), getTokens()]);
-      ctxBase = { chains, tokens, connectWallet, mark: (el) => (el.innerHTML = markSvg(`r${Math.random().toString(36).slice(2, 7)}`)) };
+      ctxBase = { chains, tokens, connectWallet, mark: (el) => (el.innerHTML = markImg(markTone(el))) };
     }
     await ROUTES[key].render({ ...ctxBase, onLeave: (fn) => leaveHandlers.push(fn) }, arg);
   } catch (error) {

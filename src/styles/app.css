@@ -148,7 +148,7 @@ a.tr:hover, a.tr:focus-visible { background: rgb(var(--ink) / 0.03); }
 .receipt-wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 320px); gap: 20px; align-items: start; }
 .rcpt { position: relative; }
 .rcpt-head { display: flex; align-items: center; gap: 10px; padding: 16px 18px; border-bottom: 1px dashed var(--line-2); }
-.rcpt-head svg { width: 20px; height: 20px; }
+.rcpt-head img { width: 20px; height: auto; }
 .rcpt-head b { font-size: 15px; font-weight: 500; color: var(--strong); }
 .rcpt-head .tag { margin-left: auto; }
 .rcpt dl { margin: 0; padding: 6px 18px 14px; }

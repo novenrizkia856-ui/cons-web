@@ -67,12 +67,12 @@ function render(entry, index, entries) {
 <title>${escape(title)}</title>
 <meta name="description" content="${escape(`Cons documentation. ${heading}.`)}">
 <meta name="theme-color" content="#fafafa">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.png" type="image/png">
 <link rel="stylesheet" href="docs.css">
 </head>
 <body>
 <header class="docs-top">
-  <a class="docs-brand" href="/"><img src="/favicon.svg" alt="" width="24" height="24">cons</a>
+  <a class="docs-brand" href="/" aria-label="Cons home"><img src="/brand/cons-wordmark-black.png" alt="Cons" width="719" height="192"></a>
   <div class="docs-top-right"><span class="docs-tag">Docs</span><a class="docs-home" href="/app.html">Open App</a><a class="docs-home" href="/">Home</a></div>
 </header>
 <div class="docs-shell">

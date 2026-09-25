@@ -1,12 +1,12 @@
 /* Shared page chrome: brand marks, config driven links, mobile menu. */
 import { consConfig } from "../config/cons.js";
-import { icons, markSvg } from "./icons.js";
+import { icons, markImg, markTone } from "./icons.js";
 
 export function initChrome() {
   document.documentElement.classList.remove("no-js");
 
-  document.querySelectorAll("[data-mark]").forEach((el, i) => {
-    el.innerHTML = markSvg(`mk${i}`);
+  document.querySelectorAll("[data-mark]").forEach((el) => {
+    el.innerHTML = markImg(markTone(el));
   });
   document.querySelectorAll("[data-icon]").forEach((el) => {
     el.insertAdjacentHTML("afterbegin", icons[el.dataset.icon] || "");
