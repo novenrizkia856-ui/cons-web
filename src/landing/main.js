@@ -5,6 +5,7 @@ import { initChrome } from "../lib/chrome.js";
 import { copyButton } from "../lib/clipboard.js";
 import { initLive, initReveal, loopWhileVisible } from "../lib/motion.js";
 import { PREFERENCES, formatEta, formatUsd, rankRoutes } from "../services/scoring.js";
+import { initFold } from "./fold.js";
 import { initPointerLight } from "./fx.js";
 import { initHero } from "./hero.js";
 
@@ -218,6 +219,7 @@ function initPolicy() {
 
 initTokenCa();
 initHero(document.getElementById("hero-console"));
+initFold(document.querySelector("[data-fold]"));
 initPreferencePanels();
 initLifecycle();
 initTokenTravel();

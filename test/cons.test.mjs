@@ -3,6 +3,9 @@ import { test } from "node:test";
 import { createConsConfig, explorerUrl, isSolanaAddress } from "../src/config/cons.js";
 import { candidateRoutes } from "../src/data/preview.js";
 import { rankRoutes } from "../src/services/scoring.js";
+import { departure, drawFold } from "../src/landing/fold.js";
+import { existsSync, readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { payloadBytes, validateAddress, validateAmount, validatePair } from "../src/lib/validate.js";
 
 // A syntactically valid base58 string of Solana key length, not a real account.
@@ -78,4 +81,34 @@ test("preference changes the winner", () => {
   const fastest = [...routes].sort((a, b) => a.etaSeconds - b.etaSeconds)[0];
   assert.equal(rankRoutes(routes, "cost")[0].providerId, cheapest.providerId);
   assert.equal(rankRoutes(routes, "speed")[0].providerId, fastest.providerId);
+});
+
+test("hero console holds flat until seen, then folds away", () => {
+  // Console ends at 1171px on a 900px screen: the fold starts at 311px.
+  assert.equal(departure(1171, 0, 900), 0);
+  assert.equal(departure(1171, 311, 900), 0);
+  assert.ok(departure(1171, 500, 900) > 0.3 && departure(1171, 500, 900) < 0.35);
+  assert.equal(departure(1171, 2000, 900), 1);
+  const el = { style: {} };
+  drawFold(el, 0, 300);
+  assert.equal(el.style.transform, "");
+  assert.equal(el.style.opacity, "1.000");
+  drawFold(el, 1, 300);
+  assert.match(el.style.transform, /rotateX\(88\.000deg\)/);
+  assert.equal(el.style.opacity, "0.000");
+});
+
+test("docs build: grouped rail, outline, search index, no raw ASCII diagrams", () => {
+  execFileSync(process.execPath, ["scripts/build-docs.mjs"], { cwd: new URL("..", import.meta.url) });
+  const docs = new URL("../public/docs/", import.meta.url);
+  const index = JSON.parse(readFileSync(new URL("search.json", docs), "utf8"));
+  assert.equal(index.length, 15);
+  assert.ok(existsSync(new URL("docs.js", docs)));
+  const home = readFileSync(new URL("index.html", docs), "utf8");
+  for (const group of ["Overview", "Architecture", "Routing", "Concepts", "Build", "Reference"]) assert.ok(home.includes(`rail-label">${group}<`), group);
+  assert.ok(home.includes('class="docs-outline"'));
+  for (const page of index) {
+    const html = readFileSync(new URL(page.page, docs), "utf8");
+    assert.ok(!/<pre><code(?: class="language-text")?>[^<]*(\n\s*\|\s*\n|├──)/.test(html), `${page.page} still has an ASCII diagram`);
+  }
 });

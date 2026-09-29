@@ -260,3 +260,8 @@ main > section.rule::before { content: ""; position: absolute; z-index: 3; top: 
 .vis-health { padding: 14px 20px 46px; }
 .health { gap: 7px; }
 .health li { padding: 8px 12px; }
+
+/* Hero console fold (src/landing/fold.js). The stage gives the fold depth and
+   lets it rise past its top edge; sideways it still clips the glow. */
+.hero-stage { perspective: 1600px; perspective-origin: 50% 0; overflow-x: clip; overflow-y: visible; }
+.console-fold { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; transform-origin: 50% 0; will-change: transform, opacity, filter; }
