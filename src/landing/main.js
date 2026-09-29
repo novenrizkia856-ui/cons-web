@@ -5,6 +5,7 @@ import { initChrome } from "../lib/chrome.js";
 import { copyButton } from "../lib/clipboard.js";
 import { initLive, initReveal, loopWhileVisible } from "../lib/motion.js";
 import { PREFERENCES, formatEta, formatUsd, rankRoutes } from "../services/scoring.js";
+import { initPointerLight } from "./fx.js";
 import { initHero } from "./hero.js";
 
 initChrome();
@@ -221,5 +222,6 @@ initPreferencePanels();
 initLifecycle();
 initTokenTravel();
 initPolicy();
+initPointerLight();
 initReveal();
 initLive();

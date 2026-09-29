@@ -21,6 +21,7 @@
 <link rel="preload" href="/fonts/basier-circle-regular.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/src/styles/base.css">
 <link rel="stylesheet" href="/src/styles/landing.css">
+<link rel="stylesheet" href="/src/styles/landing-fx.css">
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
@@ -93,6 +94,7 @@
 
     <div class="hero-stage">
       <div class="stage-grid" aria-hidden="true"></div>
+      <div class="stage-beams" data-live aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="console" id="hero-console" role="tabpanel" aria-labelledby="tab-token" data-reveal="scale" style="--i:3">
         <div class="console-bar">
           <div class="crumbs"><span class="ws"><span data-mark></span>Cons</span><span class="sep">/</span><span>Routes</span><span class="sep">/</span><span class="t-strong" data-h="title">New token route</span></div>
@@ -142,7 +144,7 @@
 <section class="prims rule" aria-labelledby="prims-title">
   <div class="frame">
     <p class="prims-title" id="prims-title">Speaks Solana natively</p>
-    <ul class="prims-grid">
+    <ul class="prims-grid" data-live>
       <li data-reveal style="--i:0"><span data-icon="program"></span>Program</li>
       <li data-reveal style="--i:1"><span data-icon="pda"></span>PDA</li>
       <li data-reveal style="--i:2"><span data-icon="instruction"></span>Instruction</li>
@@ -168,8 +170,13 @@
             <g class="links">
               <path d="M70 90 C120 40 180 40 240 50"/><path d="M70 90 C130 90 190 90 250 110"/><path d="M70 90 C120 140 180 150 230 150"/>
             </g>
+            <g class="pkts">
+              <circle r="3"><animateMotion dur="3.6s" repeatCount="indefinite" path="M70 90 C120 40 180 40 240 50"/></circle>
+              <circle r="3"><animateMotion dur="3.6s" begin="0.3s" repeatCount="indefinite" path="M70 90 C130 90 190 90 250 110"/></circle>
+              <circle r="3"><animateMotion dur="3.6s" begin="0.6s" repeatCount="indefinite" path="M70 90 C120 140 180 150 230 150"/></circle>
+            </g>
             <g class="nodes">
-              <g transform="translate(70 90)"><circle r="20" class="n-sol"/><text y="4">SOL</text></g>
+              <g transform="translate(70 90)"><circle r="20" class="halo"/><circle r="20" class="halo late"/><circle r="20" class="n-sol"/><text y="4">SOL</text></g>
               <g transform="translate(248 48)"><circle r="16"/><text y="4">ETH</text></g>
               <g transform="translate(258 112)"><circle r="16"/><text y="4">BASE</text></g>
               <g transform="translate(232 152)"><circle r="12" class="n-dim"/><text y="4">+</text></g>
@@ -203,7 +210,8 @@
 
 <!-- Statement -->
 <section class="statement rule" aria-label="Statement">
-  <div class="frame">
+  <div class="frame" data-live>
+    <div class="statement-rings" aria-hidden="true"></div>
     <div class="tiles tiles-a" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
     <div class="tiles tiles-b" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
     <blockquote data-reveal>
@@ -421,7 +429,7 @@
     </div>
     <div class="dev-wrap pad">
       <figure class="code-card" data-reveal>
-        <figcaption><span class="mono">transfer.ts</span><span class="tag plain">Interface</span></figcaption>
+        <figcaption><span class="win-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="mono">transfer.ts</span><span class="tag plain">Interface</span></figcaption>
 <pre class="mono"><code><span class="k">const</span> route = <span class="k">await</span> cons.<span class="f">transfer</span>({
   sourceChain: <span class="s">"solana"</span>,
   destinationChain: <span class="s">"base"</span>,
@@ -431,7 +439,7 @@
   priority: <span class="s">"cost"</span>
 })
 
-route.status  <span class="c">// IN_TRANSIT</span></code></pre>
+route.status  <span class="c">// IN_TRANSIT</span><span class="caret" aria-hidden="true"></span></code></pre>
       </figure>
       <ul class="dev-grid">
         <li data-reveal style="--i:0"><span data-icon="code"></span><b>One interface</b><p>Routes, quotes and requests through one SDK and API.</p></li>
@@ -454,7 +462,7 @@ route.status  <span class="c">// IN_TRANSIT</span></code></pre>
         <p class="lede">No bridge by bridge integrations.</p>
         <a class="btn btn-primary" href="/app.html">Open App</a>
       </div>
-      <ol class="steps-list">
+      <ol class="steps-list" data-live>
         <li data-reveal style="--i:1"><span class="num mono">01</span><b>Describe the intent</b><p>Source, destination, asset or payload, and policy.</p></li>
         <li data-reveal style="--i:2"><span class="num mono">02</span><b>Cons selects the route</b><p>Eligible routes compared. One committed.</p></li>
         <li data-reveal style="--i:3"><span class="num mono">03</span><b>Track one receipt</b><p>From Solana signature to confirmation.</p></li>
@@ -503,9 +511,11 @@ route.status  <span class="c">// IN_TRANSIT</span></code></pre>
         <li><a data-link="github" href="#">GitHub</a></li>
       </ul></div>
     </div>
-    <div class="footer-giant" aria-hidden="true">
+    <div class="footer-giant" data-live aria-hidden="true">
       <div class="grid"></div>
+      <div class="giant-glow"></div>
       <img src="/brand/cons-wordmark-white.png" alt="" width="719" height="192" loading="lazy" decoding="async">
+      <span class="giant-shine"></span>
     </div>
     <div class="footer-base">
       <span>© <span data-year>2026</span> Cons</span>
