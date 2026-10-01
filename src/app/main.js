@@ -1,6 +1,6 @@
 import { consConfig, integration } from "../config/cons.js";
 import { initChrome } from "../lib/chrome.js";
-import { markImg, markTone } from "../lib/icons.js";
+import { icons, markImg, markTone } from "../lib/icons.js";
 import { dataMode, getChains, getTokens } from "../services/routing.js";
 import * as wallet from "../services/wallet.js";
 import { esc, initModal, openModal, toast } from "./ui.js";
@@ -14,11 +14,11 @@ const view = document.getElementById("view");
 const crumb = document.getElementById("crumb");
 
 const ROUTES = {
-  token: { title: "Token routing", render: (ctx) => renderRouteView(view, ctx, "token") },
-  message: { title: "Message routing", render: (ctx) => renderRouteView(view, ctx, "message") },
-  activity: { title: "Activity", render: (ctx) => renderActivity(view, ctx) },
-  receipt: { title: "Receipts", render: (ctx, arg) => renderReceipt(view, ctx, arg) },
-  providers: { title: "Providers", render: (ctx) => renderProviders(view, ctx) },
+  token: { title: "Token routing", group: "Route", icon: "token", render: (ctx) => renderRouteView(view, ctx, "token") },
+  message: { title: "Message routing", group: "Route", icon: "message", render: (ctx) => renderRouteView(view, ctx, "message") },
+  activity: { title: "Activity", group: "Monitor", icon: "activity", render: (ctx) => renderActivity(view, ctx) },
+  receipt: { title: "Receipts", group: "Monitor", icon: "receipt", render: (ctx, arg) => renderReceipt(view, ctx, arg) },
+  providers: { title: "Providers", group: "Monitor", icon: "providers", render: (ctx) => renderProviders(view, ctx) },
 };
 
 /* Top bar and integration status, all read from the central config. */
@@ -129,9 +129,18 @@ async function route() {
       ctxBase = { chains, tokens, connectWallet, mark: (el) => (el.innerHTML = markImg(markTone(el))) };
     }
     await ROUTES[key].render({ ...ctxBase, onLeave: (fn) => leaveHandlers.push(fn) }, arg);
+    decorateHead(ROUTES[key]);
   } catch (error) {
     view.innerHTML = `<div class="card empty">${esc(error?.message || "Something went wrong loading this view.")}</div>`;
   }
+}
+
+/* Every view head gets its section icon tile and an eyebrow. */
+function decorateHead({ group, icon }) {
+  const head = view.querySelector(".view-head > div:first-child");
+  if (!head || head.querySelector(".vh-icon")) return;
+  head.insertAdjacentHTML("afterbegin", `<span class="vh-eyebrow mono">Cons / ${esc(group)}</span>`);
+  head.parentElement.insertAdjacentHTML("afterbegin", `<span class="vh-icon">${icons[icon] || ""}</span>`);
 }
 
 window.addEventListener("hashchange", () => {

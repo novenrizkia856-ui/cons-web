@@ -14,7 +14,7 @@ export function initChrome() {
 
   // Links resolved from config. An unconfigured link is removed, never left dead.
   document.querySelectorAll("[data-link]").forEach((el) => {
-    const root = { docs: consConfig.docsUrl, github: consConfig.githubUrl }[el.dataset.link];
+    const root = { docs: consConfig.docsUrl, github: consConfig.githubUrl, x: consConfig.xUrl }[el.dataset.link];
     if (!root) {
       el.remove();
       return;

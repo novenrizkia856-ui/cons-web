@@ -141,11 +141,6 @@ main > section.rule::before { content: ""; position: absolute; z-index: 3; top: 
 .statement-text .t-dim { background: linear-gradient(100deg, var(--dim) 35%, var(--accent-2) 48%, var(--accent) 50%, var(--accent-2) 52%, var(--dim) 65%); background-size: 300% 100%; background-position: 100% 0; -webkit-background-clip: text; background-clip: text; color: transparent; }
 .statement .frame.is-live .statement-text .t-dim { animation: shine 7s var(--ease-io) infinite; }
 .statement footer { padding: 8px 14px 8px 10px; border: 1px solid var(--line-2); border-radius: 999px; background: rgb(var(--bg-rgb) / 0.8); backdrop-filter: blur(6px); box-shadow: 0 10px 30px -18px var(--shade); }
-.tiles i { background: linear-gradient(160deg, var(--surface), rgb(var(--ink) / 0.02)); box-shadow: 0 1px 0 #fff inset, 0 18px 30px -24px var(--shade); }
-.tiles-a i:nth-child(2), .tiles-b i:nth-child(3) { position: relative; border-color: var(--accent-line); background: linear-gradient(160deg, var(--hub), rgb(var(--gold) / 0.14)); box-shadow: 0 1px 0 #fff inset, 0 14px 34px -14px rgb(var(--gold) / 0.7); }
-.tiles-a i:nth-child(2)::after, .tiles-b i:nth-child(3)::after { content: ""; position: absolute; inset: 30px; background: linear-gradient(160deg, var(--accent-fill), var(--accent)); -webkit-mask: url("/brand/cons-mark-black.png") center / contain no-repeat; mask: url("/brand/cons-mark-black.png") center / contain no-repeat; filter: drop-shadow(0 2px 6px rgb(var(--gold) / 0.5)); }
-.statement .frame.is-live .tiles-a { animation: floaty 9s var(--ease-io) infinite; }
-.statement .frame.is-live .tiles-b { animation: floaty 9s var(--ease-io) 4.5s infinite; }
 
 /* Feature visuals */
 .chain-card { background: linear-gradient(180deg, var(--node), var(--surface-2)); box-shadow: 0 1px 0 #fff inset, 0 14px 28px -20px var(--shade); }
@@ -248,7 +243,6 @@ main > section.rule::before { content: ""; position: absolute; z-index: 3; top: 
 }
 @media (max-width: 700px) {
   .caption svg { width: 24px; height: 24px; }
-  .tiles-a i:nth-child(2)::after, .tiles-b i:nth-child(3)::after { inset: 20px; }
   .prims-title::before, .prims-title::after { width: 36px; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -265,3 +259,93 @@ main > section.rule::before { content: ""; position: absolute; z-index: 3; top: 
    lets it rise past its top edge; sideways it still clips the glow. */
 .hero-stage { perspective: 1600px; perspective-origin: 50% 0; overflow-x: clip; overflow-y: visible; }
 .console-fold { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; transform-origin: 50% 0; will-change: transform, opacity, filter; }
+
+/* ==========================================================================
+   Level two (2026-10-01): duotone icon tiles, the hero route field, the chain
+   orbit, HUD framed panels, tick ring emblems and a film grain finish.
+   ========================================================================== */
+
+/* Film grain over the whole page, so flat surfaces read as material. */
+body::after { content: ""; position: fixed; inset: 0; z-index: 200; pointer-events: none; opacity: 0.045; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+/* Hero: bigger type, the canvas route field behind it. */
+.hero .h-display { font-size: clamp(40px, 5.8vw, 72px); letter-spacing: -0.05em; }
+.hero-field { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;
+  mask-image: linear-gradient(90deg, rgb(0 0 0 / 0.3), rgb(0 0 0 / 0.55) 35%, #000 60%); -webkit-mask-image: linear-gradient(90deg, rgb(0 0 0 / 0.3), rgb(0 0 0 / 0.55) 35%, #000 60%); }
+.hero-side .lede { color: var(--text); }
+.hero-side { position: relative; z-index: 1; }
+.hero-side::before { content: ""; position: absolute; inset: -18px -22px; z-index: -1; border-radius: 18px; background: radial-gradient(closest-side, rgb(var(--bg-rgb) / 0.9), rgb(var(--bg-rgb) / 0)); pointer-events: none; }
+
+/* Icon tiles: one recipe for every icon that sits in a lit square. */
+.caption svg, .dev-grid svg, .prims-grid [data-icon] svg { color: var(--accent); }
+.caption svg .duo, .dev-grid svg .duo, .prims-grid svg .duo, .chip svg .duo, .em-ring svg .duo { opacity: 0.32; }
+.dev-grid svg { width: 38px; height: 38px; padding: 9px; border-radius: 11px; background: radial-gradient(120% 120% at 30% 0%, #fff, var(--hub) 60%, var(--hub-2)); box-shadow: 0 1px 0 #fff inset, 0 -2px 0 rgb(var(--gold) / 0.12) inset, 0 8px 18px -8px rgb(var(--gold) / 0.7); transition: transform 0.5s var(--ease); }
+.dev-grid li:hover svg { transform: translateY(-2px) rotate(-6deg); }
+.caption svg { background: radial-gradient(120% 120% at 30% 0%, #fff, var(--hub) 60%, var(--hub-2)); }
+.prims-grid [data-icon] { width: 38px; height: 38px; border-color: var(--accent-line); background: radial-gradient(120% 120% at 30% 0%, #fff, var(--hub) 60%, var(--hub-2)); box-shadow: 0 1px 0 #fff inset, 0 6px 14px -8px rgb(var(--gold) / 0.7); }
+
+/* HUD framed panels: gold corner brackets and a running figure number. */
+main { counter-reset: fig; }
+.fvis, .trio-vis { counter-increment: fig; transition: border-color 0.4s, transform 0.6s var(--ease), box-shadow 0.6s var(--ease); }
+.fvis::before, .trio-vis::before { content: "FIG " counter(fig, decimal-leading-zero); position: absolute; inset: 9px; z-index: 2; pointer-events: none; display: flex; align-items: flex-end; padding: 0 0 4px 14px; font: 400 9.5px/1 var(--mono); letter-spacing: 0.14em; color: rgb(var(--ink) / 0.32);
+  --c: var(--accent-line);
+  background:
+    linear-gradient(var(--c), var(--c)) left top / 10px 1px no-repeat, linear-gradient(var(--c), var(--c)) left top / 1px 10px no-repeat,
+    linear-gradient(var(--c), var(--c)) right top / 10px 1px no-repeat, linear-gradient(var(--c), var(--c)) right top / 1px 10px no-repeat,
+    linear-gradient(var(--c), var(--c)) left bottom / 10px 1px no-repeat, linear-gradient(var(--c), var(--c)) left bottom / 1px 10px no-repeat,
+    linear-gradient(var(--c), var(--c)) right bottom / 10px 1px no-repeat, linear-gradient(var(--c), var(--c)) right bottom / 1px 10px no-repeat;
+  transition: inset 0.5s var(--ease); }
+.fcell:hover .fvis::before, .trio-card:hover .trio-vis::before { inset: 6px; --c: var(--accent); }
+.fcell:hover .fvis, .trio-card:hover .trio-vis { transform: translateY(-3px); box-shadow: 0 1px 0 rgb(255 255 255 / 0.9) inset, 0 34px 60px -38px rgb(var(--gold) / 0.55); }
+
+/* Statement: the chain orbit. Rings turn, satellites stay upright. */
+@keyframes orbit { to { rotate: 360deg; } }
+@keyframes orbit-rev { to { rotate: -360deg; } }
+.statement .frame { min-height: 660px; }
+.statement .frame::before { width: 620px; height: 380px; background: radial-gradient(closest-side, rgb(var(--bg-rgb)) 30%, rgb(var(--gold) / 0.12) 60%, transparent); }
+.statement-rings { opacity: 0.5; }
+.orbit { position: absolute; left: 50%; top: 50%; width: 0; height: 0; z-index: -2; }
+.ring { position: absolute; left: calc(var(--r) * -1); top: calc(var(--r) * -1); width: calc(var(--r) * 2); height: calc(var(--r) * 2); border-radius: 50%; border: 1px solid var(--line-2);
+  animation: orbit var(--d) linear infinite; animation-play-state: paused; }
+.ring::after { content: ""; position: absolute; inset: -1px; border-radius: 50%; pointer-events: none;
+  background: conic-gradient(from var(--s, 0deg), transparent 0 72%, rgb(var(--gold) / 0.15) 84%, rgb(var(--gold) / 0.85) 96%, transparent 96.4%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 1.5px), #000 calc(100% - 1px)); mask: radial-gradient(farthest-side, transparent calc(100% - 1.5px), #000 calc(100% - 1px)); }
+.statement .frame.is-live .ring, .statement .frame.is-live .sat b { animation-play-state: running; }
+.r1 { --r: 250px; --d: 70s; --s: 40deg; }
+.r2 { --r: 370px; --d: 110s; --s: 190deg; animation-direction: reverse; }
+.r3 { --r: 500px; --d: 150s; --s: 300deg; border-style: dashed; }
+.sat, .pkt { position: absolute; left: 50%; top: 50%; }
+.sat { width: 0; height: 0; transform: rotate(var(--a)) translateX(var(--r)) rotate(calc(var(--a) * -1)); }
+.sat b { position: absolute; left: 0; top: 0; transform-origin: 0 0; transform: translate(-50%, -50%); display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line-2); background: linear-gradient(180deg, var(--surface), var(--surface-2)); font: 500 13.5px var(--font); color: var(--strong); letter-spacing: -0.01em; box-shadow: 0 1px 0 #fff inset, 0 14px 28px -18px var(--shade);
+  animation: orbit-rev var(--d) linear infinite; animation-play-state: paused; }
+.r2 .sat b { animation-direction: reverse; }
+.sat b::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--dim); }
+.sat.sol b { border-color: var(--accent-line); background: radial-gradient(120% 120% at 30% 0%, #fff, var(--hub) 60%, var(--hub-2)); box-shadow: 0 1px 0 #fff inset, 0 14px 30px -14px rgb(var(--gold) / 0.8); }
+.sat.sol b::before { background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.sat.ic b { width: 44px; height: 44px; padding: 0; justify-content: center; border-radius: 14px; border-color: var(--accent-line); color: var(--accent); background: radial-gradient(120% 120% at 30% 0%, #fff, var(--hub) 60%, var(--hub-2)); }
+.sat.ic b::before { display: none; }
+.sat.ic svg { width: 20px; height: 20px; }
+.sat.ic svg .duo { opacity: 0.32; }
+.pkt { width: 7px; height: 7px; margin: -3.5px; border-radius: 50%; background: var(--accent-fill); box-shadow: 0 0 0 3px rgb(var(--gold) / 0.15), 0 0 12px rgb(var(--gold) / 0.9); transform: rotate(var(--a)) translateX(var(--r)); }
+
+/* Solana band: emblems wear a tick ring like an instrument dial. */
+.em-ring::before { inset: -16px; border: 0; background: repeating-conic-gradient(rgb(var(--gold) / 0.5) 0 0.7deg, transparent 0.7deg 6deg);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5.5px)); mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5.5px)); }
+.em-ring svg { width: 46px; height: 46px; stroke-width: 1.3; }
+.band .chip-n { background: rgb(var(--gold) / 0.12); }
+
+@media (max-width: 960px) {
+  .r1 { --r: 200px; } .r2 { --r: 300px; } .r3 { --r: 400px; }
+}
+@media (max-width: 700px) {
+  .statement .frame { min-height: 540px; }
+  .r1 { --r: 150px; } .r2 { --r: 230px; } .r3 { --r: 310px; }
+  .sat b { font-size: 12px; padding: 6px 10px; }
+  .sat.ic b { width: 36px; height: 36px; border-radius: 11px; }
+  .statement .frame::before { width: 360px; height: 300px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ring, .sat b { animation: none; }
+}
+.dev-grid li { align-content: start; }

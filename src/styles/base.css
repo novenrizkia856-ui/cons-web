@@ -212,6 +212,31 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .copy-btn[data-tip]::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translate(-50%, 4px); padding: 5px 8px; border-radius: 6px; background: var(--raised); border: 1px solid var(--line-2); color: var(--text); font-size: 12px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s var(--ease); }
 .copy-btn.show-tip::after { opacity: 1; transform: translate(-50%, 0); }
 
+/* Duotone icons: the soft fill layer under every glyph's line work. */
+svg .duo { opacity: 0.16; transition: opacity 0.3s; }
+a:hover svg .duo, button:hover svg .duo, li:hover svg .duo { opacity: 0.26; }
+
+/* Square icon button, used for social links */
+.icon-btn { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--line-2); color: var(--text); background: rgb(var(--ink) / 0.02); transition: color 0.2s, border-color 0.2s, background 0.2s, transform 0.3s var(--ease); }
+.icon-btn:hover { color: var(--strong); border-color: var(--accent-line); background: var(--accent-soft); transform: translateY(-1px); }
+.icon-btn svg { width: 14px; height: 14px; }
+.btn-lg { height: 44px; padding: 0 20px; font-size: 14.5px; border-radius: 12px; }
+.btn [data-icon="arrowUp"] svg { width: 14px; height: 14px; transition: transform 0.35s var(--ease); }
+.btn:hover [data-icon="arrowUp"] svg { transform: translate(2px, -2px); }
+.btn [data-icon] { display: inline-flex; }
+
+/* Scroll progress, a gold hairline under the sticky nav */
+.nav-progress { position: absolute; left: 0; right: 0; bottom: -1px; height: 1.5px; transform-origin: 0 50%; transform: scaleX(var(--progress, 0)); background: linear-gradient(90deg, transparent, var(--accent-2) 30%, var(--accent) 80%, var(--accent-fill)); box-shadow: 0 0 10px rgb(var(--gold) / 0.7); pointer-events: none; }
+
+/* Section index inside the eyebrow chip */
+.chip-n { font-style: normal; font-size: 10.5px; color: var(--accent); margin-left: 4px; padding: 2px 6px; border-radius: 999px; background: var(--accent-soft); border: 1px solid var(--accent-line); }
+
+/* Announcement X link */
+.announce .announce-x { margin-left: 8px; padding-left: 12px; border-left: 1px solid var(--line-2); color: var(--text); }
+.announce .announce-x svg { width: 12px; height: 12px; }
+.footer-base .soc { display: inline-flex; align-items: center; }
+.footer-base .soc svg { width: 13px; height: 13px; }
+
 /* Motion: the reveal language of the reference, fade up with a soft blur. */
 [data-reveal] { opacity: 0; transform: translate3d(0, 22px, 0); filter: blur(6px); transition: opacity 0.9s var(--ease), transform 1s var(--ease), filter 0.9s var(--ease); transition-delay: calc(var(--i, 0) * 80ms); }
 [data-reveal].in { opacity: 1; transform: none; filter: none; }
@@ -263,3 +288,4 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; transition-delay: 0ms !important; }
   [data-reveal] { opacity: 1; transform: none; filter: none; }
 }
+@media (max-width: 700px) { .announce .announce-x { display: none; } }

@@ -31,6 +31,7 @@
     <span class="dot" aria-hidden="true"></span>
     <span>Solana native routing layer</span>
     <a data-link="docs" href="/docs/">Read the docs <span aria-hidden="true">→</span></a>
+    <a class="announce-x" data-link="x" href="#"><span data-icon="x"></span>Follow on X</a>
   </div>
 </div>
 
@@ -45,11 +46,13 @@
       <a data-link="github" href="#">GitHub</a>
     </nav>
     <div class="nav-actions">
+      <a class="icon-btn" data-link="x" href="#" aria-label="Cons on X"><span data-icon="x"></span></a>
       <a class="btn btn-ghost btn-sm" data-link="docs" href="/docs/">Docs</a>
-      <a class="btn btn-primary btn-sm" href="/app.html">Open App</a>
+      <a class="btn btn-primary btn-sm" href="/app.html">Open App<span data-icon="arrowUp"></span></a>
       <button class="menu-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="mobile-menu"><span></span></button>
     </div>
   </div>
+  <span class="nav-progress" aria-hidden="true"></span>
 </header>
 <nav class="mobile-menu" id="mobile-menu" aria-label="Mobile">
   <a href="#routing">Routing</a>
@@ -57,6 +60,7 @@
   <a href="#developers">Developers</a>
   <a data-link="docs" href="/docs/">Docs</a>
   <a data-link="github" href="#">GitHub</a>
+  <a data-link="x" href="#">Follow on X</a>
   <a href="/app.html">Open App</a>
 </nav>
 
@@ -80,8 +84,8 @@
       <div class="hero-side" data-reveal style="--i:2">
         <p class="lede">One interface for tokens and messages.<br>Cons finds the path.</p>
         <div class="hero-ctas">
-          <a class="btn btn-primary" href="/app.html">Open App</a>
-          <a class="btn btn-ghost" data-link="docs" href="/docs/"><span data-icon="book"></span>Docs</a>
+          <a class="btn btn-primary btn-lg" href="/app.html">Open App<span data-icon="arrowUp"></span></a>
+          <a class="btn btn-ghost btn-lg" data-link="docs" href="/docs/"><span data-icon="book"></span>Docs</a>
         </div>
       </div>
     </div>
@@ -214,8 +218,11 @@
 <section class="statement rule" aria-label="Statement">
   <div class="frame" data-live>
     <div class="statement-rings" aria-hidden="true"></div>
-    <div class="tiles tiles-a" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
-    <div class="tiles tiles-b" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="orbit" aria-hidden="true">
+      <div class="ring r1"><span class="sat sol" style="--a:200deg"><b>Solana</b></span><span class="sat" style="--a:20deg"><b>Base</b></span><i class="pkt" style="--a:110deg"></i><i class="pkt" style="--a:290deg"></i></div>
+      <div class="ring r2"><span class="sat" style="--a:140deg"><b>Ethereum</b></span><span class="sat ic" style="--a:320deg"><b data-icon="message"></b></span><i class="pkt" style="--a:40deg"></i><i class="pkt" style="--a:230deg"></i></div>
+      <div class="ring r3"><span class="sat ic" style="--a:250deg"><b data-icon="token"></b></span><span class="sat ic" style="--a:70deg"><b data-icon="receipt"></b></span><span class="sat" style="--a:165deg"><b>More chains</b></span><i class="pkt" style="--a:350deg"></i></div>
+    </div>
     <blockquote data-reveal>
       <p class="statement-text">One route.<br><span class="t-dim">Every chain.</span></p>
       <footer><span class="mini-mark" data-mark></span>Integrate once. Cons handles the paths.</footer>
@@ -227,7 +234,7 @@
 <section class="features rule" id="routing" aria-labelledby="routing-title">
   <div class="frame">
     <div class="section-head">
-      <span class="chip" data-reveal><span data-icon="route"></span>Routing</span>
+      <span class="chip" data-reveal><span data-icon="route"></span>Routing<em class="chip-n mono">01</em></span>
       <h2 id="routing-title" class="h-section" data-reveal style="--i:1"><span class="t-dim">Describe the intent.</span><br>Cons finds the path.</h2>
       <p class="lede" data-reveal style="--i:2">Tokens and messages share one engine, one lifecycle and one receipt.</p>
     </div>
@@ -341,7 +348,7 @@
 <section class="features rule" id="reliability" aria-labelledby="rel-title">
   <div class="frame">
     <div class="section-head">
-      <span class="chip" data-reveal><span data-icon="shield"></span>Reliability</span>
+      <span class="chip" data-reveal><span data-icon="shield"></span>Reliability<em class="chip-n mono">02</em></span>
       <h2 id="rel-title" class="h-section" data-reveal style="--i:1">Reliable by design.<br><span class="t-dim">Explicit by default.</span></h2>
       <p class="lede" data-reveal style="--i:2">Every trust assumption stays visible and selectable.</p>
     </div>
@@ -408,7 +415,7 @@
 <section class="band" aria-labelledby="band-title">
   <div class="frame">
     <div class="band-head section-head">
-      <span class="chip" data-reveal><span data-icon="program"></span>Solana native</span>
+      <span class="chip" data-reveal><span data-icon="program"></span>Solana native<em class="chip-n mono">03</em></span>
       <h2 id="band-title" class="h-section" data-reveal style="--i:1">Native to Solana.<br><span class="t-dim">Honest about the rest.</span></h2>
       <p class="lede" data-reveal style="--i:2">Deterministic rules live on chain. Dynamic routing stays off chain.</p>
     </div>
@@ -425,7 +432,7 @@
   <div class="frame">
     <div class="dev-lines" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
     <div class="section-head">
-      <span class="chip" data-reveal><span data-icon="code"></span>Developers</span>
+      <span class="chip" data-reveal><span data-icon="code"></span>Developers<em class="chip-n mono">04</em></span>
       <h2 id="dev-title" class="h-section" data-reveal style="--i:1">Ship cross chain<br><span class="t-dim">like a single call.</span></h2>
       <p class="lede" data-reveal style="--i:2">One interface. One status model. Multiple providers.</p>
     </div>
@@ -462,7 +469,7 @@ route.status  <span class="c">// IN_TRANSIT</span><span class="caret" aria-hidde
       <div class="steps-head" data-reveal>
         <h2 id="steps-title" class="h-section">Integrate once.<br><span class="t-dim">Route everywhere.</span></h2>
         <p class="lede">No bridge by bridge integrations.</p>
-        <a class="btn btn-primary" href="/app.html">Open App</a>
+        <a class="btn btn-primary btn-lg" href="/app.html">Open App<span data-icon="arrowUp"></span></a>
       </div>
       <ol class="steps-list" data-live>
         <li data-reveal style="--i:1"><span class="num mono">01</span><b>Describe the intent</b><p>Source, destination, asset or payload, and policy.</p></li>
@@ -483,8 +490,9 @@ route.status  <span class="c">// IN_TRANSIT</span><span class="caret" aria-hidde
         <h2 class="h-section">Route anything.<br><span class="t-dim">Across every supported chain.</span></h2>
       </div>
       <div class="actions" data-reveal style="--i:1">
-        <a class="btn btn-primary" href="/app.html">Open App</a>
-        <a class="btn btn-ghost" data-link="docs" href="/docs/">Docs</a>
+        <a class="btn btn-primary btn-lg" href="/app.html">Open App<span data-icon="arrowUp"></span></a>
+        <a class="btn btn-ghost btn-lg" data-link="docs" href="/docs/">Docs</a>
+        <a class="btn btn-ghost btn-lg" data-link="x" href="#"><span data-icon="x"></span>Follow</a>
       </div>
     </div>
     <div class="footer-cols">
@@ -511,6 +519,7 @@ route.status  <span class="c">// IN_TRANSIT</span><span class="caret" aria-hidde
         <li><a data-link="docs" data-page="use-cases.html" href="/docs/use-cases.html">Use cases</a></li>
         <li><a data-link="docs" data-page="glossary.html" href="/docs/glossary.html">Glossary</a></li>
         <li><a data-link="github" href="#">GitHub</a></li>
+        <li><a data-link="x" href="#">Follow on X</a></li>
       </ul></div>
     </div>
     <div class="footer-giant" data-live aria-hidden="true">
@@ -521,7 +530,7 @@ route.status  <span class="c">// IN_TRANSIT</span><span class="caret" aria-hidde
     </div>
     <div class="footer-base">
       <span>© <span data-year>2026</span> Cons</span>
-      <nav aria-label="Footer"><a href="/app.html">App</a><a data-link="docs" href="/docs/">Docs</a><a data-link="github" href="#">GitHub</a></nav>
+      <nav aria-label="Footer"><a href="/app.html">App</a><a data-link="docs" href="/docs/">Docs</a><a data-link="github" href="#">GitHub</a><a class="soc" data-link="x" href="#" aria-label="Cons on X"><span data-icon="x"></span></a></nav>
     </div>
   </div>
 </footer>

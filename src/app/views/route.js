@@ -5,7 +5,7 @@ import { getExecutionReadiness, prepareMessage, prepareTransfer } from "../../se
 import { dataMode, quoteRoutes } from "../../services/routing.js";
 import { PREFERENCES, formatEta, formatUsd } from "../../services/scoring.js";
 import * as wallet from "../../services/wallet.js";
-import { bindRoutes, bindSegment, chainName, closeModal, esc, fragment, openModal, pathMarkup, routeList, segment, toast } from "../ui.js";
+import { bindRoutes, bindSegment, chainGlyph, chainName, closeModal, esc, fragment, openModal, pathMarkup, routeList, segment, toast } from "../ui.js";
 
 const state = {
   token: { source: "solana", destination: "base", token: "USDC", amount: "100", recipient: "", preference: "best", selected: null },
@@ -32,9 +32,9 @@ export async function renderRouteView(view, ctx, kind) {
         <div class="card-head">Request <span class="sub">${isToken ? "Token" : "Message"}</span></div>
         <div class="card-body">
           <div class="pair">
-            <div class="field"><label for="f-src">From</label><select class="select" id="f-src" name="source">${chainOptions(s.source)}</select></div>
+            <div class="field"><label for="f-src">From</label><div class="sel-chain" id="g-src">${chainGlyph(chains, s.source)}<select class="select" id="f-src" name="source">${chainOptions(s.source)}</select></div></div>
             <button class="swap" type="button" id="f-swap" aria-label="Swap networks"><span data-icon="swap"></span></button>
-            <div class="field"><label for="f-dst">To</label><select class="select" id="f-dst" name="destination">${chainOptions(s.destination)}</select></div>
+            <div class="field"><label for="f-dst">To</label><div class="sel-chain" id="g-dst">${chainGlyph(chains, s.destination)}<select class="select" id="f-dst" name="destination">${chainOptions(s.destination)}</select></div></div>
           </div>
           <p class="err" id="e-pair" role="alert"></p>
           ${
@@ -108,6 +108,8 @@ export async function renderRouteView(view, ctx, kind) {
   }
 
   function syncHints() {
+    $("#g-src .cg").outerHTML = chainGlyph(chains, s.source);
+    $("#g-dst .cg").outerHTML = chainGlyph(chains, s.destination);
     const dstKind = kindOf(s.destination);
     const placeholder = dstKind === "solana" ? "Solana wallet address" : "0x address";
     if (isToken) {
@@ -130,8 +132,8 @@ export async function renderRouteView(view, ctx, kind) {
     const valid = Object.values(errors()).every((m) => !m);
     host.replaceChildren(
       fragment(`
-      ${pathMarkup(chainName(chains, s.source), route.provider, chainName(chains, s.destination))}
-      <div class="summary"><div><span>Est. cost</span><b>${formatUsd(route.costUsd)}</b></div><div><span>Est. time</span><b>${formatEta(route.etaSeconds)}</b></div><div><span>Security</span><b>${esc(route.security)}</b></div></div>
+      ${pathMarkup(chainName(chains, s.source), route.provider, chainName(chains, s.destination), [chainGlyph(chains, s.source), chainGlyph(chains, s.destination)])}
+      <div class="summary"><div><span><span data-icon="fee"></span>Est. cost</span><b>${formatUsd(route.costUsd)}</b></div><div><span><span data-icon="clock"></span>Est. time</span><b>${formatEta(route.etaSeconds)}</b></div><div><span><span data-icon="shield"></span>Security</span><b>${esc(route.security)}</b></div></div>
       <div class="card-foot"><p>${valid ? "Ready to review." : "Complete the request to review."}</p>
       <button class="btn btn-primary" type="button" id="review" ${valid ? "" : "disabled"}>Review route</button></div>`),
     );

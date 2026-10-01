@@ -123,6 +123,26 @@ export const availabilityTag = (value) => {
   return `<span class="tag ${tone}">${esc(label)}</span>`;
 };
 
+/* Provider monogram: a lettered tile, tinted per provider so lists scan fast. */
+export function avatar(name) {
+  const letter = String(name || "?").trim().split(/\s+/).pop().charAt(0).toUpperCase();
+  const hue = 16 + ((letter.charCodeAt(0) * 23) % 44);
+  return `<span class="avatar" style="--h:${hue}" aria-hidden="true">${esc(letter)}</span>`;
+}
+
+/* Score as a ring gauge, 0 to 100. */
+export function scoreRing(score) {
+  const pct = Math.max(0, Math.min(100, Math.round(score)));
+  const c = 2 * Math.PI * 15;
+  return `<span class="score" title="Route score ${pct}"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15" class="track"/><circle cx="18" cy="18" r="15" class="bar" stroke-dasharray="${((pct / 100) * c).toFixed(1)} ${c.toFixed(1)}"/></svg><b>${pct}</b></span>`;
+}
+
+/* Chain glyph: short ticker in a tinted disc. */
+export const chainGlyph = (chains, id) => {
+  const chain = chains.find((c) => c.id === id);
+  return `<span class="cg" data-chain="${esc(id)}" aria-hidden="true">${esc(chain?.short ?? String(id).slice(0, 3).toUpperCase())}</span>`;
+};
+
 /** Route option list. Returns markup; selection is bound by bindRoutes. */
 export function routeList(routes, selectedId) {
   if (!routes.length) {
@@ -139,10 +159,11 @@ export function routeList(routes, selectedId) {
       ].join("");
       return `<button type="button" class="route${off ? " off" : ""}" role="radio" aria-checked="${checked}" ${off ? 'aria-disabled="true"' : ""} data-id="${esc(r.providerId)}" tabindex="${checked ? 0 : -1}">
         <span class="radio" aria-hidden="true"></span>
-        <span class="pv"><b>${esc(r.provider)}${badges}</b><small>${off ? "Not eligible now" : `Score ${Math.round((r.score ?? 0) * 100)}`}</small></span>
+        <span class="pv">${avatar(r.provider)}<span class="pv-t"><b>${esc(r.provider)}${badges}</b><small>${off ? "Not eligible now" : `Score ${Math.round((r.score ?? 0) * 100)}`}</small></span></span>
         <span class="kv"><span>Cost</span><span>${formatUsd(r.costUsd)}</span></span>
         <span class="kv"><span>ETA</span><span>${formatEta(r.etaSeconds)}</span></span>
         <span class="kv sec"><span>Security</span><span>${esc(r.security)}</span></span>
+        ${off ? `<span class="score off"></span>` : scoreRing((r.score ?? 0) * 100)}
       </button>`;
     })
     .join("")}</div>`;
@@ -161,5 +182,5 @@ export function bindRoutes(root, onSelect) {
   });
 }
 
-export const pathMarkup = (from, provider, to) =>
-  `<div class="path" aria-label="Route path: ${esc(from)} to Cons to ${esc(provider)} to ${esc(to)}"><span class="pn">${esc(from)}</span><span class="pl"><i></i></span><span class="pn hub">Cons</span><span class="pl"><i></i></span><span class="pn sel">${esc(provider)}</span><span class="pl"><i></i></span><span class="pn">${esc(to)}</span></div>`;
+export const pathMarkup = (from, provider, to, glyphs = ["", ""]) =>
+  `<div class="path" aria-label="Route path: ${esc(from)} to Cons to ${esc(provider)} to ${esc(to)}"><span class="pn">${glyphs[0]}${esc(from)}</span><span class="pl"><i></i></span><span class="pn hub"><span class="hub-mark" aria-hidden="true"></span>Cons</span><span class="pl"><i></i></span><span class="pn sel">${avatar(provider)}${esc(provider)}</span><span class="pl"><i></i></span><span class="pn">${glyphs[1]}${esc(to)}</span></div>`;

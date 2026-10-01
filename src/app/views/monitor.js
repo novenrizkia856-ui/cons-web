@@ -3,7 +3,7 @@ import { consConfig, explorerUrl } from "../../config/cons.js";
 import { copyButton } from "../../lib/clipboard.js";
 import { ALT_STATES, MAIN_PATH, STATES, stateLabel, stateTone } from "../../data/lifecycle.js";
 import { dataMode, getActivity, getProviders, getRequest } from "../../services/routing.js";
-import { availabilityTag, chainName, esc, fragment, relativeTime, timeStamp } from "../ui.js";
+import { availabilityTag, avatar, chainGlyph, chainName, esc, fragment, relativeTime, timeStamp } from "../ui.js";
 
 const statusTag = (status) => `<span class="tag ${stateTone(status)}">${esc(stateLabel(status))}</span>`;
 const previewNotice = (text) => (dataMode === "preview" ? `<div class="notice"><span data-icon="info"></span><span>${text}</span></div>` : "");
@@ -49,9 +49,9 @@ export async function renderActivity(view, ctx) {
           (i) => `<a class="tr" href="#/receipt/${encodeURIComponent(i.requestId)}">
           <span class="id">${esc(i.requestId)}</span>
           <span class="muted">${i.kind === "token" ? "Token" : "Message"}</span>
-          <span class="rt">${esc(chainName(ctx.chains, i.source))}<span data-icon="arrow"></span>${esc(chainName(ctx.chains, i.destination))}</span>
+          <span class="rt">${chainGlyph(ctx.chains, i.source)}${esc(chainName(ctx.chains, i.source))}<span data-icon="arrow"></span>${chainGlyph(ctx.chains, i.destination)}${esc(chainName(ctx.chains, i.destination))}</span>
           <span class="muted">${i.kind === "token" ? `${esc(i.amount)} ${esc(i.asset)}` : `${i.payloadBytes ?? 0} bytes`}</span>
-          <span>${esc(i.provider)}</span>
+          <span class="prov">${avatar(i.provider)}${esc(i.provider)}</span>
           <span>${statusTag(i.status)}</span>
           <span class="muted">${esc(relativeTime(i.submittedAt))}</span></a>`,
         )
@@ -189,7 +189,7 @@ export async function renderProviders(view, ctx) {
     <div class="pgrid">${providers
       .map(
         (p) => `<article class="card pcard">
-        <div class="pcard-top"><b><span class="hdot ${dot(p.availability)}" aria-hidden="true"></span>${esc(p.name)}</b>${availabilityTag(p.availability)}</div>
+        <div class="pcard-top"><b>${avatar(p.name)}<span class="hdot ${dot(p.availability)}" aria-hidden="true"></span>${esc(p.name)}</b>${availabilityTag(p.availability)}</div>
         <dl>
           <div><dt>Routes</dt><dd class="chips">${(p.kinds || []).map((k) => `<span>${k === "token" ? "Token" : "Message"}</span>`).join("")}</dd></div>
           <div><dt>Chains</dt><dd class="chips">${(p.chains || []).map((c) => `<span>${esc(chainName(ctx.chains, c))}</span>`).join("")}</dd></div>
