@@ -26,7 +26,6 @@ const DEFAULTS = Object.freeze({
   apiBaseUrl: "",
   docsUrl: "/docs/",
   githubUrl: "",
-  xUrl: "",
   rpcUrl: "",
   explorerBaseUrl: "https://explorer.solana.com",
 });
@@ -59,7 +58,6 @@ export function createConsConfig(env = {}) {
     apiBaseUrl: trimSlash(clean(env.PUBLIC_CONS_API_URL) || DEFAULTS.apiBaseUrl),
     docsUrl: clean(env.PUBLIC_CONS_DOCS_URL) || DEFAULTS.docsUrl,
     githubUrl: clean(env.PUBLIC_CONS_GITHUB_URL) || DEFAULTS.githubUrl,
-    xUrl: clean(env.PUBLIC_CONS_X_URL) || DEFAULTS.xUrl,
     rpcUrl: clean(env.PUBLIC_SOLANA_RPC_URL) || DEFAULTS.rpcUrl || SOLANA_NETWORKS[network].rpcUrl,
     explorerBaseUrl: trimSlash(clean(env.PUBLIC_SOLANA_EXPLORER_URL) || DEFAULTS.explorerBaseUrl),
   });
