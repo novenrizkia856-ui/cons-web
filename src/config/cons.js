@@ -8,10 +8,12 @@
  * .env.example), falling back to the defaults below. Everything here is public
  * and ships to the browser: never add a private key or signing secret.
  *
- * After the Cons Program is deployed, set PUBLIC_CONS_PROGRAM_ID (and the mint,
- * API and RPC values when they exist) in Vercel and redeploy. No component
- * changes are needed.
+ * After the Cons Program is deployed, set PUBLIC_CONS_PROGRAM_ID (and the API
+ * and RPC values when they exist) in Vercel and redeploy. No component
+ * changes are needed. The token CA is the one exception: it lives in
+ * src/config/token.js as a single line.
  */
+import { TOKEN_CA } from "./token.js";
 
 export const SOLANA_NETWORKS = Object.freeze({
   "mainnet-beta": { label: "Mainnet Beta", rpcUrl: "https://api.mainnet-beta.solana.com" },
@@ -22,7 +24,6 @@ export const SOLANA_NETWORKS = Object.freeze({
 const DEFAULTS = Object.freeze({
   network: "mainnet-beta",
   programId: "",
-  tokenMintAddress: "",
   apiBaseUrl: "",
   docsUrl: "/docs/",
   githubUrl: "",
@@ -39,6 +40,11 @@ export function isSolanaAddress(value) {
 }
 
 const clean = (value) => (typeof value === "string" ? value.trim() : "");
+
+/** Token CA rule: null or blank means "Coming Soon" (""); anything else is used as written. */
+export function resolveTokenCa(value) {
+  return value === null || value === undefined ? "" : String(value).trim();
+}
 
 /**
  * "USDC=<mint>,USDT=<mint>" to { USDC: "<mint>", ... }. These are the Solana
@@ -60,16 +66,15 @@ const trimSlash = (value) => value.replace(/\/+$/, "");
  * Invalid addresses resolve to "" so the UI falls back to its unconfigured
  * state instead of showing or copying a malformed value.
  */
-export function createConsConfig(env = {}) {
+export function createConsConfig(env = {}, tokenCa = TOKEN_CA) {
   const network = SOLANA_NETWORKS[clean(env.PUBLIC_SOLANA_NETWORK)] ? clean(env.PUBLIC_SOLANA_NETWORK) : DEFAULTS.network;
   const programId = clean(env.PUBLIC_CONS_PROGRAM_ID) || DEFAULTS.programId;
-  const tokenMintAddress = clean(env.PUBLIC_CONS_TOKEN_MINT) || DEFAULTS.tokenMintAddress;
 
   return Object.freeze({
     network,
     networkLabel: SOLANA_NETWORKS[network].label,
     programId: isSolanaAddress(programId) ? programId : "",
-    tokenMintAddress: isSolanaAddress(tokenMintAddress) ? tokenMintAddress : "",
+    tokenMintAddress: resolveTokenCa(tokenCa),
     apiBaseUrl: trimSlash(clean(env.PUBLIC_CONS_API_URL) || DEFAULTS.apiBaseUrl),
     docsUrl: clean(env.PUBLIC_CONS_DOCS_URL) || DEFAULTS.docsUrl,
     githubUrl: clean(env.PUBLIC_CONS_GITHUB_URL) || DEFAULTS.githubUrl,

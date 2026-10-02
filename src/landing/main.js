@@ -11,7 +11,7 @@ import { initHero } from "./hero.js";
 
 initChrome();
 
-/* Token CA. Shows the configured mint, or Coming Soon with an inert copy. */
+/* Token CA (src/config/token.js). Shows it as written, or Coming Soon with an inert copy. */
 function initTokenCa() {
   const mint = consConfig.tokenMintAddress;
   const value = document.getElementById("ca-value");

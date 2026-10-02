@@ -25,7 +25,6 @@ test("config reads PUBLIC_ env values and rejects malformed addresses", () => {
   const c = createConsConfig({
     PUBLIC_SOLANA_NETWORK: "devnet",
     PUBLIC_CONS_PROGRAM_ID: KEY,
-    PUBLIC_CONS_TOKEN_MINT: "not-an-address",
     PUBLIC_CONS_API_URL: "https://api.example.com/",
   });
   assert.equal(c.network, "devnet");
@@ -111,4 +110,13 @@ test("docs build: grouped rail, outline, search index, no raw ASCII diagrams", (
     const html = readFileSync(new URL(page.page, docs), "utf8");
     assert.ok(!/<pre><code(?: class="language-text")?>[^<]*(\n\s*\|\s*\n|├──)/.test(html), `${page.page} still has an ASCII diagram`);
   }
+});
+
+test("token CA: empty or null shows Coming Soon, anything else is shown as written", async () => {
+  const { resolveTokenCa } = await import("../src/config/cons.js");
+  const { TOKEN_CA } = await import("../src/config/token.js");
+  assert.equal(typeof TOKEN_CA === "string" || TOKEN_CA === null, true);
+  for (const blank of ["", "   ", null, undefined]) assert.equal(createConsConfig({}, blank).tokenMintAddress, "");
+  assert.equal(resolveTokenCa("  So11111111111111111111111111111111111111112 "), "So11111111111111111111111111111111111111112");
+  assert.equal(createConsConfig({}, "anything at all").tokenMintAddress, "anything at all");
 });

@@ -72,7 +72,8 @@ for (const file of files) {
   if (file.endsWith("audit-copy.mjs")) continue;
   const source = readFileSync(file, "utf8");
   for (const pattern of LEFTOVERS) if (pattern.test(source)) failures.push(`${file}: matches ${pattern}`);
-  if (/\.(js|html)$/.test(file) && hardcodedAddress(source)) failures.push(`${file}: looks like a hardcoded Solana address`);
+  // src/config/token.js is the one place the token CA is written by design.
+  if (/\.(js|html)$/.test(file) && !/[\\/]config[\\/]token\.js$/.test(file) && hardcodedAddress(source)) failures.push(`${file}: looks like a hardcoded Solana address`);
 }
 
 if (failures.length) {
