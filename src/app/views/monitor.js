@@ -2,8 +2,11 @@
 import { consConfig, explorerUrl } from "../../config/cons.js";
 import { copyButton } from "../../lib/clipboard.js";
 import { ALT_STATES, MAIN_PATH, STATES, stateLabel, stateTone } from "../../data/lifecycle.js";
+import { refundAction } from "../../lib/cons-ix.js";
+import { errorText, refundRequest } from "../../services/program.js";
 import { dataMode, getActivity, getProviders, getRequest } from "../../services/routing.js";
-import { availabilityTag, avatar, chainGlyph, chainName, esc, fragment, relativeTime, timeStamp } from "../ui.js";
+import * as wallet from "../../services/wallet.js";
+import { availabilityTag, avatar, chainGlyph, chainName, esc, fragment, relativeTime, timeStamp, toast } from "../ui.js";
 
 const statusTag = (status) => `<span class="tag ${stateTone(status)}">${esc(stateLabel(status))}</span>`;
 const previewNotice = (text) => (dataMode === "preview" ? `<div class="notice"><span data-icon="info"></span><span>${text}</span></div>` : "");
@@ -95,9 +98,9 @@ function lifecycleSteps(item) {
   return `<ol class="vstep">${steps.map((s) => `<li class="${s.cls}"><i></i><span>${esc(s.label)}${s.note ? `<small>${esc(s.note)}</small>` : ""}</span></li>`).join("")}</ol>`;
 }
 
-function field(label, value, { mono = false, copy = false, link = "" } = {}) {
+function fieldRow(label, value, { mono = false, copy = false, link = "", sample = dataMode === "preview" } = {}) {
   const na = value === null || value === undefined || value === "";
-  const shown = na ? (dataMode === "preview" ? "Not available in preview" : "Pending") : value;
+  const shown = na ? (sample ? "Not available in preview" : "Pending") : value;
   return `<div><dt>${esc(label)}</dt><dd class="${mono ? "mono" : ""}${na ? " na" : ""}" title="${esc(na ? "" : value)}">${esc(shown)}</dd>
     <span class="acts">${copy && !na ? `<span data-copy="${esc(value)}" data-label="Copy ${esc(label.toLowerCase())}"></span>` : ""}${link ? `<a class="ext" href="${esc(link)}" target="_blank" rel="noopener noreferrer" aria-label="Open ${esc(label.toLowerCase())} in explorer" data-icon="external"></a>` : ""}</span></div>`;
 }
@@ -142,6 +145,8 @@ export async function renderReceipt(view, ctx, id) {
     return;
   }
 
+  // Empty fields read "Pending" for real (on chain or API) records.
+  const field = (label, value, opts = {}) => fieldRow(label, value, { ...opts, sample: Boolean(item.sample) });
   const solanaSource = item.source === "solana";
   const solanaDest = item.destination === "solana";
   host.replaceChildren(
@@ -168,6 +173,33 @@ export async function renderReceipt(view, ctx, id) {
   );
   host.querySelectorAll("[data-copy]").forEach((el) => el.replaceWith(copyButton(el.dataset.copy, { label: el.dataset.label })));
   host.querySelectorAll("[data-mark-inline]").forEach((el) => ctx.mark(el));
+  if (item.onchain) mountRefund(view, ctx, id, item.onchain);
+}
+
+/* Refund exit for an on chain request: the requester cancels before expiry,
+   anyone can expire it after. Funds always return to the requester. */
+function mountRefund(view, ctx, id, request) {
+  const action = refundAction(request, { now: Date.now() / 1000, signer: wallet.state.address });
+  if (!action) return;
+  const label = action === "cancel" ? "Cancel and refund" : "Refund expired request";
+  const foot = fragment(`<div class="card-foot"><p>${request.kind === "token" ? "Funds return to the requester's wallet." : "The request closes without delivery."}</p>
+    <button class="btn btn-primary" type="button" id="refund">${label}</button></div>`);
+  view.querySelector(".rcpt").append(foot);
+  const button = view.querySelector("#refund");
+  button.addEventListener("click", async () => {
+    if (!wallet.state.address) return ctx.connectWallet();
+    button.disabled = true;
+    button.textContent = "Waiting for wallet";
+    try {
+      await refundRequest(id);
+      toast(action === "cancel" ? "Request cancelled and refunded." : "Request expired and refunded.");
+      if (view.isConnected) renderReceipt(view, ctx, id);
+    } catch (error) {
+      toast(errorText(error));
+      button.disabled = false;
+      button.textContent = label;
+    }
+  });
 }
 
 /* Providers */

@@ -28,6 +28,7 @@ const DEFAULTS = Object.freeze({
   githubUrl: "",
   rpcUrl: "",
   explorerBaseUrl: "https://explorer.solana.com",
+  assetMints: "",
 });
 
 const BASE58 = /^[1-9A-HJ-NP-Za-km-z]+$/;
@@ -38,6 +39,20 @@ export function isSolanaAddress(value) {
 }
 
 const clean = (value) => (typeof value === "string" ? value.trim() : "");
+
+/**
+ * "USDC=<mint>,USDT=<mint>" to { USDC: "<mint>", ... }. These are the Solana
+ * mints the Cons Program accepts for token requests on this network. Invalid
+ * entries are dropped, so that asset simply stays unavailable.
+ */
+export function parseAssetMints(value) {
+  const out = {};
+  for (const part of clean(value).split(",")) {
+    const [symbol, mint] = part.split("=").map(clean);
+    if (symbol && isSolanaAddress(mint)) out[symbol.toUpperCase()] = mint;
+  }
+  return Object.freeze(out);
+}
 const trimSlash = (value) => value.replace(/\/+$/, "");
 
 /**
@@ -60,6 +75,7 @@ export function createConsConfig(env = {}) {
     githubUrl: clean(env.PUBLIC_CONS_GITHUB_URL) || DEFAULTS.githubUrl,
     rpcUrl: clean(env.PUBLIC_SOLANA_RPC_URL) || DEFAULTS.rpcUrl || SOLANA_NETWORKS[network].rpcUrl,
     explorerBaseUrl: trimSlash(clean(env.PUBLIC_SOLANA_EXPLORER_URL) || DEFAULTS.explorerBaseUrl),
+    assetMints: parseAssetMints(clean(env.PUBLIC_CONS_ASSET_MINTS) || DEFAULTS.assetMints),
   });
 }
 

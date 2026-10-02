@@ -64,12 +64,15 @@ const walk = (dir) => {
 walk(root);
 
 const LEFTOVERS = [/\bmora\b/i, /framer/i, /analytics platform/i, /lorem ipsum/i, /\bTODO\b/, /\bMVP\b/, /roadmap/i, /presale/i, /tokenomics/i];
-const ADDRESS = /["'`][1-9A-HJ-NP-Za-km-z]{32,44}["'`]/;
+const ADDRESS = /["'`][1-9A-HJ-NP-Za-km-z]{32,44}["'`]/g;
+// Canonical Solana programs are protocol constants, not deployment values.
+const CANONICAL = new Set(["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"]);
+const hardcodedAddress = (source) => [...source.matchAll(ADDRESS)].some((m) => !CANONICAL.has(m[0].slice(1, -1)));
 for (const file of files) {
   if (file.endsWith("audit-copy.mjs")) continue;
   const source = readFileSync(file, "utf8");
   for (const pattern of LEFTOVERS) if (pattern.test(source)) failures.push(`${file}: matches ${pattern}`);
-  if (/\.(js|html)$/.test(file) && ADDRESS.test(source)) failures.push(`${file}: looks like a hardcoded Solana address`);
+  if (/\.(js|html)$/.test(file) && hardcodedAddress(source)) failures.push(`${file}: looks like a hardcoded Solana address`);
 }
 
 if (failures.length) {

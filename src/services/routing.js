@@ -6,8 +6,9 @@
  * PUBLIC_CONS_API_URL set it calls the Cons API (endpoints as listed in the
  * Developer Interface docs); without it, it serves the preview data layer.
  */
-import { consConfig, integration } from "../config/cons.js";
+import { consConfig, integration, isSolanaAddress } from "../config/cons.js";
 import * as preview from "../data/preview.js";
+import { fetchRequest } from "./program.js";
 import { rankRoutes } from "./scoring.js";
 
 export const dataMode = integration.hasApi ? "live" : "preview";
@@ -88,10 +89,18 @@ export function normalizeReceipt(raw, kind) {
   };
 }
 
-/** Look up one request by ID. Tries transfers, then messages. */
+/**
+ * Look up one request by ID. A Solana address is read from the Cons Program
+ * (the request account is the receipt); otherwise the API is asked for
+ * transfers, then messages.
+ */
 export async function getRequest(id) {
   const key = String(id || "").trim();
   if (!key) return null;
+  if (integration.hasProgram && isSolanaAddress(key)) {
+    const onchain = await fetchRequest(key);
+    if (onchain) return onchain;
+  }
   if (dataMode === "preview") return preview.sampleActivity.find((item) => item.requestId === key) ?? null;
 
   const safe = encodeURIComponent(key);

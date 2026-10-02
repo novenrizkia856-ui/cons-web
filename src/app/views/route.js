@@ -1,7 +1,8 @@
 /* Token and message routing workspace. One view, two request kinds. */
 import { copyText } from "../../lib/clipboard.js";
 import { payloadBytes, validateAddress, validateAmount, validatePair } from "../../lib/validate.js";
-import { getExecutionReadiness, prepareMessage, prepareTransfer } from "../../services/program.js";
+import { integration } from "../../config/cons.js";
+import { errorText, getExecutionReadiness, prepareMessage, prepareTransfer, refreshProgramState } from "../../services/program.js";
 import { dataMode, quoteRoutes } from "../../services/routing.js";
 import { PREFERENCES, formatEta, formatUsd } from "../../services/scoring.js";
 import * as wallet from "../../services/wallet.js";
@@ -26,7 +27,7 @@ export async function renderRouteView(view, ctx, kind) {
       <div><h1>${isToken ? "Token routing" : "Message routing"}</h1>
       <p>${isToken ? "Move a supported asset. Cons compares every eligible route." : "Send an arbitrary payload to a program or contract."}</p></div>
     </div>
-    ${dataMode === "preview" ? `<div class="notice"><span data-icon="info"></span><span>Routes below use illustrative preview data. No transaction is created from this page yet.</span></div>` : ""}
+    ${dataMode === "preview" ? `<div class="notice"><span data-icon="info"></span><span>Routes below use illustrative preview data. ${integration.hasProgram ? "The request itself is created on Solana." : "No transaction is created from this page yet."}</span></div>` : ""}
     <div class="work">
       <form class="card" id="req" novalidate>
         <div class="card-head">Request <span class="sub">${isToken ? "Token" : "Message"}</span></div>
@@ -137,7 +138,13 @@ export async function renderRouteView(view, ctx, kind) {
       <div class="card-foot"><p>${valid ? "Ready to review." : "Complete the request to review."}</p>
       <button class="btn btn-primary" type="button" id="review" ${valid ? "" : "disabled"}>Review route</button></div>`),
     );
-    $("#review").addEventListener("click", () => review(route));
+    const reviewButton = $("#review");
+    reviewButton.addEventListener("click", async () => {
+      reviewButton.disabled = true;
+      await refreshProgramState();
+      reviewButton.disabled = false;
+      if (view.isConnected) review(route);
+    });
   }
 
   function renderRoutes() {
@@ -207,7 +214,7 @@ export async function renderRouteView(view, ctx, kind) {
   }
 
   function review(route) {
-    const readiness = getExecutionReadiness({ walletAddress: wallet.state.address });
+    const readiness = getExecutionReadiness({ walletAddress: wallet.state.address, request: requestObject(route) });
     const rows = [
       ["From", chainName(chains, s.source)],
       ["To", chainName(chains, s.destination)],
@@ -235,16 +242,24 @@ export async function renderRouteView(view, ctx, kind) {
           const ok = await copyText(JSON.stringify(requestObject(route), null, 2));
           toast(ok ? "Request JSON copied" : "Copy failed");
         });
-        body.querySelector("#m-go").addEventListener("click", async () => {
+        body.querySelector("#m-go").addEventListener("click", async (event) => {
           if (readiness.status === "no-wallet") {
             closeModal();
             ctx.connectWallet();
             return;
           }
+          const button = event.currentTarget;
+          button.disabled = true;
+          button.textContent = "Waiting for wallet";
           try {
-            await (isToken ? prepareTransfer : prepareMessage)(requestObject(route), route, wallet.state.address);
+            const { request } = await (isToken ? prepareTransfer : prepareMessage)(requestObject(route), route, wallet.state.address);
+            closeModal();
+            toast("Request created on Solana.");
+            location.hash = `#/receipt/${encodeURIComponent(request)}`;
           } catch (error) {
-            toast(error.message);
+            toast(errorText(error));
+            button.disabled = false;
+            button.textContent = readiness.label;
           }
         });
       },

@@ -1,9 +1,9 @@
 /**
  * Solana wallet boundary.
  *
- * Connects to an injected Solana wallet to read the public key, and nothing
- * more. There is no signing here on purpose: transaction building belongs to
- * src/services/program.js once the Cons Program exists.
+ * Connects to an injected Solana wallet to read the public key, and hands a
+ * transaction built by src/services/program.js to the wallet for approval.
+ * The wallet signs; this app never holds a key.
  *
  * To move to the Solana Wallet Adapter or Wallet Standard later, keep this
  * module's exports (detectWallets, connect, disconnect, onChange, state) and
@@ -70,6 +70,23 @@ export async function disconnect() {
   } finally {
     reset();
   }
+}
+
+/**
+ * Ask the connected wallet to sign and send `transaction` (a web3.js
+ * Transaction). Returns the signature. Wallets without signAndSendTransaction
+ * sign only, and the app sends through `connection`.
+ */
+export async function signAndSend(transaction, connection) {
+  if (!active) throw new Error("Connect a wallet first.");
+  const provider = active.provider;
+  if (typeof provider.signAndSendTransaction === "function") {
+    const result = await provider.signAndSendTransaction(transaction);
+    return typeof result === "string" ? result : result?.signature;
+  }
+  if (typeof provider.signTransaction !== "function") throw new Error("This wallet cannot sign transactions.");
+  const signed = await provider.signTransaction(transaction);
+  return connection.sendRawTransaction(signed.serialize());
 }
 
 export const shortAddress = (value) => (value ? `${value.slice(0, 4)}…${value.slice(-4)}` : "");

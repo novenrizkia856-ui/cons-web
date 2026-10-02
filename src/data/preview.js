@@ -12,10 +12,12 @@
 
 export const PREVIEW_NOTICE = "Illustrative preview data. Not live network information.";
 
+/* chainId is the numeric id the Cons Program stores as destination_chain:
+   the EVM chain id for EVM networks. Solana is only ever the source. */
 export const chains = [
-  { id: "solana", name: "Solana", kind: "solana", short: "SOL" },
-  { id: "ethereum", name: "Ethereum", kind: "evm", short: "ETH" },
-  { id: "base", name: "Base", kind: "evm", short: "BASE" },
+  { id: "solana", name: "Solana", kind: "solana", short: "SOL", chainId: 0 },
+  { id: "ethereum", name: "Ethereum", kind: "evm", short: "ETH", chainId: 1 },
+  { id: "base", name: "Base", kind: "evm", short: "BASE", chainId: 8453 },
 ];
 
 /* Tokens are identified by symbol here only for display. Real routing resolves
