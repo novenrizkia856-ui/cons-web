@@ -1,6 +1,6 @@
 import { consConfig } from "../config/cons.js";
 import { chains } from "../data/networks.js";
-import { networkIcon } from "../lib/network-icon.js";
+import { networkIcon, networkMark } from "../lib/network-icon.js";
 import { candidateRoutes } from "../data/preview.js";
 import { MAIN_PATH } from "../data/lifecycle.js";
 import { initChrome } from "../lib/chrome.js";
@@ -31,6 +31,10 @@ function initNetworks() {
     .map((c) => `<li class="net-chip${c.status === "soon" ? " soon" : ""}" title="${c.name}${c.status === "soon" ? " (soon)" : ""}"><i class="net-ico">${networkIcon(c.id)}</i><span>${c.name}</span></li>`)
     .join("");
   document.querySelectorAll("[data-net]").forEach((el) => (el.innerHTML = networkIcon(el.dataset.net)));
+  // Logos inside the SVG figures, centred on the node (optionally offset by data-x).
+  document.querySelectorAll("[data-net-mark]").forEach((el) => {
+    el.innerHTML = networkMark(el.dataset.netMark, Number(el.dataset.size), Number(el.dataset.x || 0), 0);
+  });
 }
 
 /* Route intelligence and comparison share one preference. */
