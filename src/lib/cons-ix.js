@@ -19,6 +19,11 @@ export const ACTION_REFUND = 6;
 
 export const STATUS = Object.freeze(["CREATED", "SUBMITTED", "IN_TRANSIT", "DESTINATION_RECEIVED", "CONFIRMED", "FAILED", "RETRYING", "EXPIRED", "CANCELLED"]);
 
+/* Account sizes the live mainnet build allocates (its request accounts carry
+   8 trailing zero bytes; a later upgrade moves new requests to 261). */
+export const REQUEST_ACCOUNT_BYTES = 269;
+export const VAULT_ACCOUNT_BYTES = 165;
+
 /** Bounds enforced on chain for expires_at, relative to the cluster clock. */
 export const MIN_EXPIRY_SECONDS = 60;
 export const MAX_EXPIRY_SECONDS = 30 * 24 * 60 * 60;

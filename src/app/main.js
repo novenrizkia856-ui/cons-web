@@ -25,12 +25,12 @@ const ROUTES = {
 function paintStatus() {
   document.getElementById("net-pill").textContent = consConfig.networkLabel;
   const mode = document.getElementById("mode-pill");
-  mode.textContent = dataMode === "live" ? "Live API" : "Preview data";
-  mode.className = `tag ${dataMode === "live" ? "ok" : "warn"}`;
+  mode.textContent = { live: "Live API", chain: "On chain", preview: "Preview data" }[dataMode];
+  mode.className = `tag ${dataMode === "preview" ? "warn" : "ok"}`;
   const short = (v) => `${v.slice(0, 4)}…${v.slice(-4)}`;
   const rows = [
     ["Program", integration.hasProgram ? short(consConfig.programId) : "Not deployed", integration.hasProgram],
-    ["Routing API", integration.hasApi ? "Connected" : "Preview", integration.hasApi],
+    ["Routing API", integration.hasApi ? "Connected" : integration.hasProgram ? "Not used" : "Preview", integration.hasApi],
     ["Token mint", integration.hasTokenMint ? short(consConfig.tokenMintAddress) : "Coming Soon", integration.hasTokenMint],
     ["Cluster", consConfig.networkLabel, true],
   ];
@@ -39,7 +39,7 @@ function paintStatus() {
     .join("");
 }
 
-/* Wallet button: connects to read the public key only. No signing exists yet. */
+/* Wallet button. The wallet signs Cons transactions; the app never holds a key. */
 const walletBtn = document.getElementById("wallet-btn");
 function paintWallet() {
   walletBtn.querySelector(".wl").textContent = wallet.state.address ? wallet.shortAddress(wallet.state.address) : "Connect wallet";
@@ -52,7 +52,7 @@ async function connectWallet() {
   const found = wallet.detectWallets();
   if (!found.length) {
     openModal(`<div class="m-head"><h2 id="modal-title">No Solana wallet found</h2><p>Install a Solana wallet extension, then reload this page.</p></div>
-      <div class="m-body"><div class="notice neutral"><span data-icon="info"></span><span>Cons only reads your public key here. It never asks for a seed phrase or private key.</span></div></div>
+      <div class="m-body"><div class="notice neutral"><span data-icon="info"></span><span>Your wallet signs every Cons transaction. Cons never asks for a seed phrase or private key.</span></div></div>
       <div class="m-foot"><button class="btn btn-primary" type="button" data-close>Close</button></div>`);
     return;
   }

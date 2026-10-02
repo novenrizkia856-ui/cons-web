@@ -52,3 +52,7 @@ export function formatEta(seconds) {
 }
 
 export const formatUsd = (value) => `$${Number(value).toFixed(2)}`;
+
+/* A route may carry ready text (the on chain route quotes SOL, and its time is set by the operator). */
+export const routeCost = (route) => route.costText ?? formatUsd(route.costUsd);
+export const routeEta = (route) => route.etaText ?? formatEta(route.etaSeconds);

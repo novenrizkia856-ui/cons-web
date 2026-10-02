@@ -3,10 +3,13 @@ import { consConfig, explorerUrl } from "../../config/cons.js";
 import { copyButton } from "../../lib/clipboard.js";
 import { ALT_STATES, MAIN_PATH, STATES, stateLabel, stateTone } from "../../data/lifecycle.js";
 import { refundAction } from "../../lib/cons-ix.js";
-import { errorText, refundRequest } from "../../services/program.js";
+import { errorText, fetchProtocol, refundRequest } from "../../services/program.js";
 import { dataMode, getActivity, getProviders, getRequest } from "../../services/routing.js";
 import * as wallet from "../../services/wallet.js";
 import { availabilityTag, avatar, chainGlyph, chainName, esc, fragment, relativeTime, timeStamp, toast } from "../ui.js";
+
+/* Re-run the current route, so the router also redecorates the view head. */
+const rerender = () => window.dispatchEvent(new HashChangeEvent("hashchange"));
 
 const statusTag = (status) => `<span class="tag ${stateTone(status)}">${esc(stateLabel(status))}</span>`;
 const previewNotice = (text) => (dataMode === "preview" ? `<div class="notice"><span data-icon="info"></span><span>${text}</span></div>` : "");
@@ -15,15 +18,42 @@ const previewNotice = (text) => (dataMode === "preview" ? `<div class="notice"><
 const activityState = { filter: "ALL", query: "" };
 
 export async function renderActivity(view, ctx) {
-  const items = await getActivity();
+  const onChain = dataMode === "chain";
+  if (onChain) {
+    // Re-render through the router for the new wallet; the listener removes itself first.
+    const off = wallet.onChange(() => {
+      off();
+      if (view.isConnected) rerender();
+    });
+    ctx.onLeave(off);
+  }
+  const head = `<div class="view-head"><div><h1>Activity</h1><p>Every request in one status model.</p></div>
+      ${dataMode === "preview" ? `<span class="tag warn">Sample data</span>` : onChain ? `<span class="tag ok">On chain</span>` : ""}</div>`;
+  if (onChain && !wallet.state.address) {
+    view.replaceChildren(
+      fragment(`${head}<div class="card empty"><span data-icon="activity"></span>Connect a wallet to see your requests on Solana.<button class="btn btn-primary btn-sm" type="button" id="act-connect">Connect wallet</button></div>`),
+    );
+    view.querySelector("#act-connect").addEventListener("click", () => ctx.connectWallet());
+    return;
+  }
+  view.replaceChildren(fragment(`${head}<div class="skeleton" style="height:240px"></div>`));
+  let items;
+  let source;
+  try {
+    ({ items, source } = await getActivity({ owner: wallet.state.address }));
+  } catch (error) {
+    if (view.isConnected) view.replaceChildren(fragment(`${head}<div class="card empty"><span data-icon="info"></span>${esc(errorText(error))}</div>`));
+    return;
+  }
+  if (!view.isConnected) return;
   const counts = items.reduce((acc, item) => ((acc[item.status] = (acc[item.status] || 0) + 1), acc), {});
   const filters = [["ALL", "All", items.length], ...[...MAIN_PATH, ...ALT_STATES].map((key) => [key, STATES[key].label, counts[key] || 0])];
 
   view.replaceChildren(
     fragment(`
-    <div class="view-head"><div><h1>Activity</h1><p>Every request in one status model.</p></div>
-      ${dataMode === "preview" ? `<span class="tag warn">Sample data</span>` : ""}</div>
+    ${head}
     ${previewNotice("These are sample requests that show each lifecycle state. Live activity appears once the Cons API is configured.")}
+    ${source === "browser" ? `<div class="notice neutral"><span data-icon="info"></span><span>Showing requests made in this browser. A full RPC lists every request.</span></div>` : ""}
     <div class="toolbar">
       <div class="filters" role="group" aria-label="Filter by status">${filters
         .map(([key, label, n]) => `<button type="button" data-f="${key}" aria-pressed="${key === activityState.filter}">${esc(label)}<span class="n">${n}</span></button>`)
@@ -38,7 +68,7 @@ export async function renderActivity(view, ctx) {
     const q = activityState.query.trim().toLowerCase();
     const rows = items.filter((i) => (activityState.filter === "ALL" || i.status === activityState.filter) && (!q || i.requestId.toLowerCase().includes(q)));
     if (!items.length) {
-      list.replaceChildren(fragment(`<div class="empty"><span data-icon="activity"></span>No requests from this browser yet.<a class="btn btn-ghost btn-sm" href="#/receipt">Look up a request</a></div>`));
+      list.replaceChildren(fragment(`<div class="empty"><span data-icon="activity"></span>${onChain ? "No requests from this wallet yet." : "No requests from this browser yet."}<a class="btn btn-ghost btn-sm" href="${onChain ? "#/token" : "#/receipt"}">${onChain ? "Create a request" : "Look up a request"}</a></div>`));
       return;
     }
     if (!rows.length) {
@@ -53,8 +83,8 @@ export async function renderActivity(view, ctx) {
           <span class="id">${esc(i.requestId)}</span>
           <span class="muted">${i.kind === "token" ? "Token" : "Message"}</span>
           <span class="rt">${chainGlyph(ctx.chains, i.source)}${esc(chainName(ctx.chains, i.source))}<span data-icon="arrow"></span>${chainGlyph(ctx.chains, i.destination)}${esc(chainName(ctx.chains, i.destination))}</span>
-          <span class="muted">${i.kind === "token" ? `${esc(i.amount)} ${esc(i.asset)}` : `${i.payloadBytes ?? 0} bytes`}</span>
-          <span class="prov">${avatar(i.provider)}${esc(i.provider)}</span>
+          <span class="muted">${i.kind === "token" ? `${esc(i.amount)} ${esc(i.asset)}` : i.payloadBytes == null ? "Payload hash" : `${i.payloadBytes} bytes`}</span>
+          <span class="prov">${avatar(i.provider || "Unassigned")}${esc(i.provider || "Unassigned")}</span>
           <span>${statusTag(i.status)}</span>
           <span class="muted">${esc(relativeTime(i.submittedAt))}</span></a>`,
         )
@@ -126,7 +156,7 @@ export async function renderReceipt(view, ctx, id) {
       fragment(
         dataMode === "preview"
           ? `<div class="card empty"><span data-icon="receipt"></span>Pick a sample request from Activity to see its receipt.<a class="btn btn-ghost btn-sm" href="#/activity">Open Activity</a></div>`
-          : `<div class="card empty"><span data-icon="receipt"></span>Enter a request ID to load its receipt.</div>`,
+          : `<div class="card empty"><span data-icon="receipt"></span>${dataMode === "chain" ? "Enter a request address to load its receipt." : "Enter a request ID to load its receipt."}</div>`,
       ),
     );
     return;
@@ -193,7 +223,7 @@ function mountRefund(view, ctx, id, request) {
     try {
       await refundRequest(id);
       toast(action === "cancel" ? "Request cancelled and refunded." : "Request expired and refunded.");
-      if (view.isConnected) renderReceipt(view, ctx, id);
+      if (view.isConnected) rerender();
     } catch (error) {
       toast(errorText(error));
       button.disabled = false;
@@ -203,7 +233,38 @@ function mountRefund(view, ctx, id, request) {
 }
 
 /* Providers */
+/* On chain there is no provider registry: show the protocol as Solana sees it. */
+async function renderProtocol(view) {
+  const head = `<div class="view-head"><div><h1>Providers</h1><p>The Cons operator assigns a provider to each request.</p></div><span class="tag ok">On chain</span></div>`;
+  view.replaceChildren(fragment(`${head}<div class="skeleton" style="height:200px"></div>`));
+  let p;
+  try {
+    p = await fetchProtocol();
+  } catch (error) {
+    if (view.isConnected) view.replaceChildren(fragment(`${head}<div class="card empty"><span data-icon="info"></span>${esc(errorText(error))}</div>`));
+    return;
+  }
+  if (!view.isConnected) return;
+  const status = !p.initialized ? ["warn", "Not initialized"] : p.paused ? ["warn", "Paused"] : ["ok", "Live"];
+  const row = (label, value, kind = "address") =>
+    `<div><dt>${esc(label)}</dt><dd class="mono" title="${esc(value)}">${kind === "address" && value ? `<a href="${esc(explorerUrl("address", value))}" target="_blank" rel="noopener noreferrer">${esc(value)}</a>` : esc(value ?? "")}</dd></div>`;
+  view.replaceChildren(
+    fragment(`${head}
+    <div class="pgrid"><article class="card pcard">
+      <div class="pcard-top"><b>${avatar("Cons")}Cons Program</b><span class="tag ${status[0]}">${status[1]}</span></div>
+      <dl>
+        ${row("Program", p.programId)}
+        ${row("Config", p.config)}
+        ${p.initialized ? `${row("Operator", p.operator)}${row("Treasury", p.treasury)}${row("Admin", p.admin)}${row("Version", String(p.version), "text")}` : ""}
+        ${row("Network", consConfig.networkLabel, "text")}
+      </dl>
+    </article></div>
+    <div class="notice neutral"><span data-icon="info"></span><span>Provider names, health and fees come from the Cons routing service.</span></div>`),
+  );
+}
+
 export async function renderProviders(view, ctx) {
+  if (dataMode === "chain") return renderProtocol(view);
   view.replaceChildren(fragment(`<div class="view-head"><div><h1>Providers</h1><p>Supported is not the same as usable. Both are shown.</p></div></div><div class="skeleton" style="height:200px"></div>`));
   let providers = [];
   try {

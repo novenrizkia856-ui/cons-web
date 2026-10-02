@@ -2,16 +2,20 @@
  * Routing data boundary.
  *
  * Every view reads chains, tokens, providers, quotes and request status
- * through this module and never from the preview data directly. With
- * PUBLIC_CONS_API_URL set it calls the Cons API (endpoints as listed in the
- * Developer Interface docs); without it, it serves the preview data layer.
+ * through this module and never from the preview data directly. Modes:
+ *   live     PUBLIC_CONS_API_URL set: the Cons API (Developer Interface docs).
+ *   chain    No API, Cons Program configured: everything is read from Solana.
+ *            One route (the Cons operator assigns the provider), real costs,
+ *            the connected wallet's requests, protocol facts.
+ *   preview  Neither: the illustrative preview data layer.
  */
 import { consConfig, integration, isSolanaAddress } from "../config/cons.js";
+import * as networks from "../data/networks.js";
 import * as preview from "../data/preview.js";
-import { fetchRequest } from "./program.js";
+import { chainRoute, fetchRequest, listRequests } from "./program.js";
 import { rankRoutes } from "./scoring.js";
 
-export const dataMode = integration.hasApi ? "live" : "preview";
+export const dataMode = integration.hasApi ? "live" : integration.hasProgram ? "chain" : "preview";
 
 export class ApiError extends Error {
   constructor(message, status) {
@@ -39,15 +43,20 @@ async function api(path, { method = "GET", body } = {}) {
 const list = (value, key) => (Array.isArray(value) ? value : Array.isArray(value?.[key]) ? value[key] : []);
 
 export async function getChains() {
-  return dataMode === "live" ? list(await api("/v1/chains"), "chains") : preview.chains;
+  return dataMode === "live" ? list(await api("/v1/chains"), "chains") : networks.chains;
 }
 
+/** On chain, only the assets whose mint is configured for this network. */
 export async function getTokens() {
-  return dataMode === "live" ? list(await api("/v1/tokens"), "tokens") : preview.tokens;
+  if (dataMode === "live") return list(await api("/v1/tokens"), "tokens");
+  if (dataMode === "chain") return networks.tokens.filter((t) => consConfig.assetMints[t.symbol]);
+  return networks.tokens;
 }
 
+/** On chain there is no provider registry: the operator assigns providers. */
 export async function getProviders() {
-  return dataMode === "live" ? list(await api("/v1/providers"), "providers") : preview.providers;
+  if (dataMode === "live") return list(await api("/v1/providers"), "providers");
+  return dataMode === "chain" ? [] : preview.providers;
 }
 
 /**
@@ -56,6 +65,7 @@ export async function getProviders() {
  *            recipient?, payload?, payloadBytes?, preference }
  */
 export async function quoteRoutes(request) {
+  if (dataMode === "chain") return [await chainRoute(request)];
   const routes =
     dataMode === "live"
       ? list(await api("/v1/quote", { method: "POST", body: request }), "routes")
@@ -63,9 +73,14 @@ export async function quoteRoutes(request) {
   return rankRoutes(routes, request.preference);
 }
 
-/** Activity feed. The live API exposes lookups by ID, so live mode starts empty. */
-export async function getActivity() {
-  return dataMode === "live" ? [] : preview.sampleActivity;
+/**
+ * Activity feed: { items, source }. On chain it lists the connected wallet's
+ * requests (source "index" or "browser", see listRequests). The live API
+ * exposes lookups by ID, so live mode starts empty.
+ */
+export async function getActivity({ owner } = {}) {
+  if (dataMode === "chain") return owner ? listRequests(owner) : { items: [], source: "wallet" };
+  return { items: dataMode === "live" ? [] : preview.sampleActivity, source: dataMode };
 }
 
 /** Normalize a receipt from the API into the shape the UI renders. */
@@ -102,6 +117,7 @@ export async function getRequest(id) {
     if (onchain) return onchain;
   }
   if (dataMode === "preview") return preview.sampleActivity.find((item) => item.requestId === key) ?? null;
+  if (dataMode === "chain") return null;
 
   const safe = encodeURIComponent(key);
   try {

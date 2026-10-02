@@ -1,6 +1,6 @@
 /* Small UI toolkit for the app views. */
 import { icons } from "../lib/icons.js";
-import { formatEta, formatUsd } from "../services/scoring.js";
+import { routeCost, routeEta } from "../services/scoring.js";
 
 export const esc = (value) =>
   String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -159,11 +159,11 @@ export function routeList(routes, selectedId) {
       ].join("");
       return `<button type="button" class="route${off ? " off" : ""}" role="radio" aria-checked="${checked}" ${off ? 'aria-disabled="true"' : ""} data-id="${esc(r.providerId)}" tabindex="${checked ? 0 : -1}">
         <span class="radio" aria-hidden="true"></span>
-        <span class="pv">${avatar(r.provider)}<span class="pv-t"><b>${esc(r.provider)}${badges}</b><small>${off ? "Not eligible now" : `Score ${Math.round((r.score ?? 0) * 100)}`}</small></span></span>
-        <span class="kv"><span>Cost</span><span>${formatUsd(r.costUsd)}</span></span>
-        <span class="kv"><span>ETA</span><span>${formatEta(r.etaSeconds)}</span></span>
+        <span class="pv">${avatar(r.provider)}<span class="pv-t"><b>${esc(r.provider)}${badges}</b><small>${off ? "Not eligible now" : r.score === null ? esc(r.note ?? "") : `Score ${Math.round((r.score ?? 0) * 100)}`}</small></span></span>
+        <span class="kv"><span>Cost</span><span>${esc(routeCost(r))}</span></span>
+        <span class="kv"><span>ETA</span><span>${esc(routeEta(r))}</span></span>
         <span class="kv sec"><span>Security</span><span>${esc(r.security)}</span></span>
-        ${off ? `<span class="score off"></span>` : scoreRing((r.score ?? 0) * 100)}
+        ${off || r.score === null ? `<span class="score off"></span>` : scoreRing((r.score ?? 0) * 100)}
       </button>`;
     })
     .join("")}</div>`;

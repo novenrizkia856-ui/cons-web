@@ -10,6 +10,10 @@
  */
 import { consConfig, integration } from "../config/cons.js";
 import {
+  ACCOUNT,
+  REQUEST_ACCOUNT_BYTES,
+  VAULT_ACCOUNT_BYTES,
+  base58Encode,
   decodeConfig,
   decodeRequest,
   destinationBytes,
@@ -29,6 +33,7 @@ const TOKEN_PROGRAM = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
 const ASSOCIATED_TOKEN_PROGRAM = "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL";
 
 const TOKEN_EXPIRY_SECONDS = 3600;
+const BASE_FEE_LAMPORTS = 5000;
 const STATE_TTL_MS = 20_000;
 
 /** Readable text for the program's custom error codes (6000 to 6009). */
@@ -199,6 +204,7 @@ export async function prepareTransfer(request) {
     meta(w3.SystemProgram.programId),
   ];
   const signature = await sendInstruction(w3, keys, data);
+  rememberRequest(requester.toBase58(), address.toBase58());
   return { signature, request: address.toBase58() };
 }
 
@@ -225,6 +231,7 @@ export async function prepareMessage(request) {
   const none = meta(program); // optional account left out: the program id
   const keys = [meta(requester, true, true), meta(config), meta(address, true), none, none, none, none, meta(w3.SystemProgram.programId)];
   const signature = await sendInstruction(w3, keys, data);
+  rememberRequest(requester.toBase58(), address.toBase58());
   return { signature, request: address.toBase58() };
 }
 
@@ -253,6 +260,11 @@ export async function fetchRequest(address) {
   const r = decodeRequest(info.data);
 
   const [chains, tokens, signatures] = await Promise.all([getChains(), getTokens(), c.getSignaturesForAddress(key, { limit: 1000 }).catch(() => [])]);
+  return toItem(address, r, chains, tokens, signatures.at(-1)?.signature ?? null);
+}
+
+/** A decoded request as the item shape Activity and Receipt render. */
+function toItem(address, r, chains, tokens, sourceTx = null) {
   const symbol = Object.entries(consConfig.assetMints).find(([, mint]) => mint === r.mint)?.[0];
   const decimals = tokens.find((t) => t.symbol === symbol)?.decimals ?? 6;
   return {
@@ -261,17 +273,118 @@ export async function fetchRequest(address) {
     status: r.status,
     source: "solana",
     destination: chains.find((ch) => ch.chainId === r.destinationChain)?.id ?? `chain ${r.destinationChain}`,
-    sourceTx: signatures.at(-1)?.signature ?? null,
+    sourceTx,
     destinationTx: destinationTxText(r.destinationTx) || null,
     provider: r.providerId ? `Provider ${r.providerId}` : "",
     asset: r.kind === "token" ? (symbol ?? `${r.mint.slice(0, 4)}…`) : null,
     amount: r.kind === "token" ? formatUnits(r.amount, decimals) : null,
+    payloadBytes: null,
     submittedAt: iso(r.createdAt),
     confirmedAt: iso(r.confirmedAt),
     history: historyOf(r),
     sample: false,
     onchain: r,
   };
+}
+
+/* Requests created from this browser, per wallet. Used to list Activity when
+   the RPC does not serve getProgramAccounts (most free public endpoints). */
+const STORE_KEY = "cons.requests";
+let indexUnavailable = false; // the RPC refused getProgramAccounts once: do not ask again this session
+
+function storedRequests(owner) {
+  try {
+    return JSON.parse(localStorage.getItem(`${STORE_KEY}.${consConfig.programId}.${owner}`) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function rememberRequest(owner, address) {
+  try {
+    const list = [address, ...storedRequests(owner).filter((a) => a !== address)].slice(0, 200);
+    localStorage.setItem(`${STORE_KEY}.${consConfig.programId}.${owner}`, JSON.stringify(list));
+  } catch {
+    /* storage unavailable: Activity falls back to the RPC index only */
+  }
+}
+
+/**
+ * Every request of `owner`, newest first. Uses the RPC index
+ * (getProgramAccounts filtered by requester) when available, otherwise the
+ * requests this browser created. source: "index" | "browser".
+ */
+export async function listRequests(owner) {
+  const w3 = await web3();
+  const c = connection(w3);
+  const program = new w3.PublicKey(consConfig.programId);
+  let entries;
+  let source = "index";
+  try {
+    if (indexUnavailable) throw new Error("No index");
+    const found = await c.getProgramAccounts(program, {
+      filters: [{ memcmp: { offset: 0, bytes: base58Encode(Uint8Array.from(ACCOUNT.request)) } }, { memcmp: { offset: 8, bytes: owner } }],
+    });
+    entries = found.map(({ pubkey, account }) => [pubkey.toBase58(), account]);
+  } catch {
+    indexUnavailable = true;
+    source = "browser";
+    const addresses = storedRequests(owner);
+    const infos = addresses.length ? await c.getMultipleAccountsInfo(addresses.map((a) => new w3.PublicKey(a))) : [];
+    entries = addresses.map((a, i) => [a, infos[i]]).filter(([, info]) => info && info.owner.toBase58() === consConfig.programId);
+  }
+  const [chains, tokens] = await Promise.all([getChains(), getTokens()]);
+  const items = [];
+  for (const [address, account] of entries) {
+    try {
+      items.push(toItem(address, decodeRequest(account.data), chains, tokens));
+    } catch {
+      /* not a request account */
+    }
+  }
+  items.sort((a, b) => b.onchain.createdAt - a.onchain.createdAt);
+  return { items, source };
+}
+
+/**
+ * The single route the program offers: the request is recorded on Solana and
+ * the Cons operator assigns the provider. Cost is what the requester pays on
+ * Solana, read from the cluster: request account rent, plus the vault rent
+ * for tokens (returned when the request closes), plus the network fee.
+ */
+export async function chainRoute(request) {
+  const w3 = await web3();
+  const c = connection(w3);
+  const [requestRent, vaultRent] = await Promise.all([
+    c.getMinimumBalanceForRentExemption(REQUEST_ACCOUNT_BYTES),
+    request.kind === "token" ? c.getMinimumBalanceForRentExemption(VAULT_ACCOUNT_BYTES) : 0,
+  ]);
+  const sol = (lamports) => `${(lamports / 1e9).toFixed(5)} SOL`;
+  return {
+    providerId: "cons-operator",
+    provider: "Cons operator",
+    kind: request.kind,
+    source: request.source,
+    destination: request.destination,
+    costText: sol(requestRent + BASE_FEE_LAMPORTS),
+    costNote: vaultRent ? `Plus ${sol(vaultRent)} vault rent, returned when the request closes.` : "",
+    etaText: "Set by operator",
+    security: "Operator attested",
+    note: "Provider assigned after submission",
+    availability: "active",
+    eligible: true,
+    score: null,
+  };
+}
+
+/** Protocol facts from the config account, for the Providers view. */
+export async function fetchProtocol() {
+  const w3 = await web3();
+  const c = connection(w3);
+  const { config } = pdas(w3);
+  const info = await c.getAccountInfo(config);
+  if (!info) return { programId: consConfig.programId, config: config.toBase58(), initialized: false };
+  return { programId: consConfig.programId, config: config.toBase58(), initialized: true, ...decodeConfig(info.data) };
 }
 
 /**

@@ -1,10 +1,10 @@
 /* Token and message routing workspace. One view, two request kinds. */
 import { copyText } from "../../lib/clipboard.js";
 import { payloadBytes, validateAddress, validateAmount, validatePair } from "../../lib/validate.js";
-import { integration } from "../../config/cons.js";
+import { consConfig, integration } from "../../config/cons.js";
 import { errorText, getExecutionReadiness, prepareMessage, prepareTransfer, refreshProgramState } from "../../services/program.js";
 import { dataMode, quoteRoutes } from "../../services/routing.js";
-import { PREFERENCES, formatEta, formatUsd } from "../../services/scoring.js";
+import { PREFERENCES, routeCost, routeEta } from "../../services/scoring.js";
 import * as wallet from "../../services/wallet.js";
 import { bindRoutes, bindSegment, chainGlyph, chainName, closeModal, esc, fragment, openModal, pathMarkup, routeList, segment, toast } from "../ui.js";
 
@@ -20,14 +20,18 @@ export async function renderRouteView(view, ctx, kind) {
   const { chains, tokens } = ctx;
   const chainOptions = (value) => chains.map((c) => `<option value="${esc(c.id)}"${c.id === value ? " selected" : ""}>${esc(c.name)}</option>`).join("");
   const isToken = kind === "token";
+  // On chain there is one route and single delivery, so preference and multi path do not apply.
+  const onChain = dataMode === "chain";
+  if (onChain) s.delivery = "single";
 
   view.replaceChildren(
     fragment(`
     <div class="view-head">
       <div><h1>${isToken ? "Token routing" : "Message routing"}</h1>
-      <p>${isToken ? "Move a supported asset. Cons compares every eligible route." : "Send an arbitrary payload to a program or contract."}</p></div>
+      <p>${isToken ? (onChain ? "Move a supported asset from Solana to another network." : "Move a supported asset. Cons compares every eligible route.") : "Send an arbitrary payload to a program or contract."}</p></div>
     </div>
     ${dataMode === "preview" ? `<div class="notice"><span data-icon="info"></span><span>Routes below use illustrative preview data. ${integration.hasProgram ? "The request itself is created on Solana." : "No transaction is created from this page yet."}</span></div>` : ""}
+    ${onChain ? `<div class="notice neutral"><span data-icon="info"></span><span>Your request is recorded on Solana ${esc(consConfig.networkLabel)}. The Cons operator then assigns the provider.</span></div>` : ""}
     <div class="work">
       <form class="card" id="req" novalidate>
         <div class="card-head">Request <span class="sub">${isToken ? "Token" : "Message"}</span></div>
@@ -56,14 +60,14 @@ export async function renderRouteView(view, ctx, kind) {
                 <textarea class="textarea" id="f-payload" name="payload" spellcheck="false" aria-label="Payload" aria-describedby="e-payload" placeholder="${s.encoding === "hex" ? "0x..." : "sync_state"}">${esc(s.payload)}</textarea>
                 <p class="err" id="e-payload"></p></div>
               <details class="adv"><summary>Advanced <span data-icon="chevron"></span></summary><div class="adv-body">
-                <div class="field"><span class="label">Delivery</span>${segment("Delivery", [["single", "Single route"], ["multi", "Multi path"]], s.delivery)}</div>
+                <div class="field" ${onChain ? "hidden" : ""}><span class="label">Delivery</span>${segment("Delivery", [["single", "Single route"], ["multi", "Multi path"]], s.delivery)}</div>
                 <div class="field" id="quorum-field" ${s.delivery === "multi" ? "" : "hidden"}><label for="f-quorum">Quorum</label>
                   <select class="select" id="f-quorum"><option value="2"${s.quorum === "2" ? " selected" : ""}>2 of 3 confirmations</option><option value="3"${s.quorum === "3" ? " selected" : ""}>3 of 3 confirmations</option></select></div>
                 <div class="field"><label for="f-expiry">Expiry</label>
                   <select class="select" id="f-expiry"><option value="600"${s.expiry === "600" ? " selected" : ""}>10 minutes</option><option value="3600"${s.expiry === "3600" ? " selected" : ""}>1 hour</option><option value="86400"${s.expiry === "86400" ? " selected" : ""}>24 hours</option></select></div>
               </div></details>`
           }
-          <div class="field"><span class="label">Routing preference</span><div id="pref">${segment("Routing preference", PREFS, s.preference)}</div></div>
+          <div class="field" ${onChain ? "hidden" : ""}><span class="label">Routing preference</span><div id="pref">${segment("Routing preference", PREFS, s.preference)}</div></div>
         </div>
       </form>
 
@@ -134,7 +138,8 @@ export async function renderRouteView(view, ctx, kind) {
     host.replaceChildren(
       fragment(`
       ${pathMarkup(chainName(chains, s.source), route.provider, chainName(chains, s.destination), [chainGlyph(chains, s.source), chainGlyph(chains, s.destination)])}
-      <div class="summary"><div><span><span data-icon="fee"></span>Est. cost</span><b>${formatUsd(route.costUsd)}</b></div><div><span><span data-icon="clock"></span>Est. time</span><b>${formatEta(route.etaSeconds)}</b></div><div><span><span data-icon="shield"></span>Security</span><b>${esc(route.security)}</b></div></div>
+      <div class="summary"><div><span><span data-icon="fee"></span>Est. cost</span><b>${esc(routeCost(route))}</b></div><div><span><span data-icon="clock"></span>Est. time</span><b>${esc(routeEta(route))}</b></div><div><span><span data-icon="shield"></span>Security</span><b>${esc(route.security)}</b></div></div>
+      ${route.costNote ? `<p class="hint">${esc(route.costNote)}</p>` : ""}
       <div class="card-foot"><p>${valid ? "Ready to review." : "Complete the request to review."}</p>
       <button class="btn btn-primary" type="button" id="review" ${valid ? "" : "disabled"}>Review route</button></div>`),
     );
@@ -220,11 +225,11 @@ export async function renderRouteView(view, ctx, kind) {
       ["To", chainName(chains, s.destination)],
       ...(isToken
         ? [["Asset", `${s.amount} ${s.token}`], ["Recipient", s.recipient]]
-        : [["Destination", s.target], ["Payload", `${payloadBytes(s.payload, s.encoding).bytes} bytes`], ["Delivery", s.delivery === "multi" ? `Multi path, ${s.quorum} of 3` : "Single route"]]),
+        : [["Destination", s.target], ["Payload", `${payloadBytes(s.payload, s.encoding).bytes} bytes`], ...(onChain ? [] : [["Delivery", s.delivery === "multi" ? `Multi path, ${s.quorum} of 3` : "Single route"]])]),
       ["Route", route.provider],
-      ["Est. cost", formatUsd(route.costUsd)],
-      ["Est. time", formatEta(route.etaSeconds)],
-      ["Preference", PREFERENCES[s.preference].label],
+      ["Est. cost", routeCost(route)],
+      ["Est. time", routeEta(route)],
+      ...(onChain ? [] : [["Preference", PREFERENCES[s.preference].label]]),
     ];
     const canAct = readiness.status === "ready" || readiness.status === "no-wallet";
     openModal(
