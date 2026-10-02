@@ -107,7 +107,7 @@ test("docs build: grouped rail, outline, search index, no raw ASCII diagrams", (
   for (const group of ["Overview", "Architecture", "Routing", "Concepts", "Build", "Reference"]) assert.ok(home.includes(`rail-label">${group}<`), group);
   assert.ok(home.includes('class="docs-outline"'));
   for (const page of index) {
-    const html = readFileSync(new URL(page.page, docs), "utf8");
+    const html = readFileSync(new URL(page.page.replace("/docs/", ""), docs), "utf8");
     assert.ok(!/<pre><code(?: class="language-text")?>[^<]*(\n\s*\|\s*\n|├──)/.test(html), `${page.page} still has an ASCII diagram`);
   }
 });

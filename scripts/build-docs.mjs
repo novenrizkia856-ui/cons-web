@@ -23,7 +23,8 @@ const root = join(here, "..");
 const source = join(root, "content", "docs");
 const out = join(root, "public", "docs");
 
-const pageFor = (file) => (basename(file) === "README.md" ? "index.html" : basename(file).replace(/\.md$/, ".html"));
+// Absolute URLs: Vercel serves /docs/ as /docs (no trailing slash), which breaks relative ones.
+const pageFor = (file) => `/docs/${basename(file) === "README.md" ? "index.html" : basename(file).replace(/\.md$/, ".html")}`;
 const escape = (value) => String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const stripTags = (html) => html.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'");
 const slugify = (text) => text.toLowerCase().replace(/&[a-z]+;/g, "").replace(/[^a-z0-9\s]/g, "").trim().replace(/\s+/g, "-") || "section";
@@ -320,10 +321,10 @@ const wordsIn = (html) => stripTags(html).split(/\s+/).filter(Boolean).length;
 function render(entry, index, entries, page) {
   const { html, headings } = page;
   const heading = stripTags(html.match(/<h1>([\s\S]*?)<\/h1>/)?.[1] ?? entry.title);
-  const isHome = entry.page === "index.html";
+  const isHome = entry.page === "/docs/index.html";
   const title = isHome ? "Cons Docs" : `${heading} | Cons Docs`;
   const minutes = Math.max(1, Math.round(wordsIn(html) / 220));
-  const intro = `<div class="docs-meta"><ol class="crumbs"><li><a href="index.html">Docs</a></li><li>${escape(entry.group)}</li></ol><span>${minutes} min read</span></div>`;
+  const intro = `<div class="docs-meta"><ol class="crumbs"><li><a href="/docs/">Docs</a></li><li>${escape(entry.group)}</li></ol><span>${minutes} min read</span></div>`;
   const body = html.replace(/<h1>/, `${intro}<h1>`) + (isHome ? homeCards(entries) : "");
   const outlineHeadings = isHome ? [...headings, { id: "explore", text: "Explore the docs", depth: 2 }] : headings;
   return `<!DOCTYPE html>
@@ -336,9 +337,9 @@ function render(entry, index, entries, page) {
 <meta name="theme-color" content="#fafafa">
 <link rel="icon" href="/favicon.png" type="image/png">
 <link rel="preload" href="/fonts/basier-circle-regular.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="docs.css">
+<link rel="stylesheet" href="/docs/docs.css">
 <script>document.documentElement.classList.add("js")</script>
-<script src="docs.js" defer></script>
+<script src="/docs/docs.js" defer></script>
 </head>
 <body id="top">
 <a class="skip" href="#content">Skip to content</a>
@@ -346,7 +347,7 @@ function render(entry, index, entries, page) {
   <div class="top-left">
     <button class="icon-btn menu-btn" type="button" aria-controls="docs-rail" aria-expanded="false" aria-label="Open navigation">${ICON.menu}</button>
     <a class="docs-brand" href="/" aria-label="Cons home"><img src="/brand/cons-wordmark-black.png" alt="Cons" width="719" height="192"></a>
-    <a class="docs-tag" href="index.html">Docs</a>
+    <a class="docs-tag" href="/docs/">Docs</a>
   </div>
   <button class="search-btn" type="button" data-search-open aria-label="Search the docs">${ICON.search}<span>Search docs</span><kbd>Ctrl K</kbd></button>
   <div class="top-right">
@@ -385,7 +386,7 @@ mkdirSync(out, { recursive: true });
 const index = [];
 entries.forEach((entry, i) => {
   const page = renderPage(readFileSync(join(source, entry.file), "utf8"));
-  writeFileSync(join(out, entry.page), render(entry, i, entries, page));
+  writeFileSync(join(out, basename(entry.page)), render(entry, i, entries, page));
   index.push({ title: entry.title, group: entry.group, page: entry.page, sections: searchSections(page.html) });
 });
 writeFileSync(join(out, "search.json"), JSON.stringify(index));

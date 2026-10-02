@@ -76,7 +76,7 @@
 
   const load = () =>
     index ??
-    fetch("search.json")
+    fetch("/docs/search.json")
       .then((r) => r.json())
       .then((data) => (index = data))
       .catch(() => (index = []));
