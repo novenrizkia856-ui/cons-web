@@ -5,4 +5,4 @@
  * commit and push. Empty ("") or null shows "Coming Soon". Anything else is
  * shown and copied exactly as written (surrounding spaces are trimmed).
  */
-export const TOKEN_CA = "";
+export const TOKEN_CA = "4Z24wE8vK9wfzN65gquct2m85KPGEkcKfcc714J7pump";
