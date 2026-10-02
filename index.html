@@ -77,6 +77,10 @@
           </div>
           <p class="hero-badge"><span class="sol-dot" aria-hidden="true"></span>Built natively on Solana</p>
         </div>
+        <div class="nets" data-reveal style="--i:1" role="group" aria-label="Supported networks">
+          <span class="nets-label mono">Networks</span>
+          <ul class="nets-list" id="nets-list"></ul>
+        </div>
       </div>
       <div class="hero-side" data-reveal style="--i:2">
         <p class="lede">One interface for tokens and messages.<br>Cons finds the path.</p>
@@ -235,10 +239,10 @@
       <!-- Token routing -->
       <article class="fcell" data-reveal>
         <div class="fvis vis-token" data-live aria-hidden="true">
-          <div class="chain-card from"><span class="cc-top">From</span><b>Solana</b><span class="mono">100.00 USDC</span><span class="cc-meta">SPL Token</span></div>
+          <div class="chain-card from"><span class="cc-top">From</span><b><i class="net-ico" data-net="solana"></i>Solana</b><span class="mono">100.00 USDC</span><span class="cc-meta">SPL Token</span></div>
           <svg class="token-track" viewBox="0 0 220 120" preserveAspectRatio="none"><path id="track" d="M0 60 C60 60 70 20 110 20 S160 60 220 60"/><path class="track-lit" d="M0 60 C60 60 70 20 110 20 S160 60 220 60"/></svg>
           <span class="coin">$</span>
-          <div class="chain-card to"><span class="cc-top">To</span><b>Base</b><span class="mono">100.00 USDC</span><span class="cc-meta">Recipient</span></div>
+          <div class="chain-card to"><span class="cc-top">To</span><b><i class="net-ico" data-net="base"></i>Base</b><span class="mono">100.00 USDC</span><span class="cc-meta">Recipient</span></div>
           <div class="token-foot"><span class="tag plain">via Provider C</span><span class="tag ok">Confirmed</span></div>
         </div>
         <p class="caption"><span data-icon="token"></span><b>Token routing.</b> Assets resolved by mint, never by ticker alone.</p>

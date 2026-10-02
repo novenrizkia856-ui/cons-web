@@ -12,6 +12,7 @@
     "test": "node --test"
   },
   "devDependencies": {
+    "@web3icons/core": "^4.0.57",
     "marked": "^18.0.13",
     "vite": "^7.1.7"
   },

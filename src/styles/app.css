@@ -314,13 +314,29 @@ a.tr:hover, a.tr:focus-visible { background: rgb(var(--ink) / 0.03); }
 
 /* Chain glyphs */
 .cg { display: inline-grid; place-items: center; flex: none; min-width: 26px; height: 22px; padding: 0 5px; border-radius: 7px; font: 500 9.5px/1 var(--mono); letter-spacing: 0.04em; color: var(--strong); border: 1px solid var(--line-2); background: linear-gradient(180deg, var(--surface), var(--surface-2)); }
-.cg[data-chain="solana"] { color: var(--on-accent); border-color: var(--accent-line); background: linear-gradient(140deg, #f3d9ae, var(--accent-fill) 45%, var(--accent-2)); }
-.cg[data-chain="ethereum"] { color: #fff; border-color: #2a2a2a; background: linear-gradient(140deg, #4a4a4a, #161616); }
-.cg[data-chain="base"] { color: #fff; border-color: rgb(var(--info-rgb) / 0.6); background: linear-gradient(140deg, #7d97b3, var(--info)); }
-.sel-chain { position: relative; }
-.sel-chain .cg { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); pointer-events: none; }
-.sel-chain .select { padding-left: 48px; }
+.cg.logo { min-width: 0; width: 22px; height: 22px; padding: 0; border: 0; border-radius: 50%; background: none; overflow: hidden; }
+.cg.logo svg { width: 100%; height: 100%; display: block; }
 .tr .rt .cg { min-width: 22px; height: 18px; font-size: 8.5px; border-radius: 5px; }
+.tr .rt .cg.logo { min-width: 0; width: 18px; height: 18px; border-radius: 50%; }
+
+/* Network picker */
+.net-btn { display: flex; align-items: center; gap: 10px; width: 100%; height: 42px; padding: 0 12px 0 10px; border: 1px solid var(--line-2); border-radius: 10px; background: var(--surface); color: var(--strong); font: 500 14px/1 var(--font); text-align: left; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
+.net-btn:hover { border-color: var(--line-3, var(--line-2)); box-shadow: 0 6px 16px -12px var(--shade); }
+.net-btn:focus-visible { outline: 2px solid var(--accent-line); outline-offset: 2px; }
+.net-btn .net-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.net-btn > [data-icon] { color: var(--muted); display: inline-flex; }
+.net-pick { display: grid; gap: 14px; max-height: min(62vh, 520px); overflow: auto; }
+.net-search { width: 100%; }
+.net-group[hidden], .net-item[hidden] { display: none; }
+.net-label { margin: 0 0 6px; font: 500 11.5px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--dim); }
+.net-list { display: grid; gap: 2px; }
+.net-item { display: flex; align-items: center; gap: 12px; width: 100%; padding: 9px 10px; border: 0; border-radius: 10px; background: none; color: var(--strong); font: 500 14px/1.2 var(--font); text-align: left; cursor: pointer; }
+.net-item .cg.logo { width: 26px; height: 26px; }
+.net-item:hover:not([disabled]), .net-item:focus-visible { background: var(--surface-2); outline: none; }
+.net-item.on { background: rgb(var(--gold) / 0.12); }
+.net-item[disabled] { cursor: default; opacity: 0.55; }
+.net-item .net-name { flex: 1; }
+.net-check { color: var(--ok, var(--accent-2)); display: inline-flex; }
 
 /* Provider monograms */
 .avatar { display: inline-grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 9px; font: 600 13px/1 var(--font); color: #fff; text-shadow: 0 1px 1px rgb(0 0 0 / 0.25);

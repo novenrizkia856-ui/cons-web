@@ -6,7 +6,7 @@ import { errorText, getExecutionReadiness, prepareMessage, prepareTransfer, refr
 import { dataMode, quoteRoutes } from "../../services/routing.js";
 import { PREFERENCES, routeCost, routeEta } from "../../services/scoring.js";
 import * as wallet from "../../services/wallet.js";
-import { bindRoutes, bindSegment, chainGlyph, chainName, closeModal, esc, fragment, openModal, pathMarkup, routeList, segment, toast } from "../ui.js";
+import { bindChainPickers, bindRoutes, bindSegment, chainGlyph, chainName, chainPicker, closeModal, esc, fragment, openModal, pathMarkup, routeList, segment, toast } from "../ui.js";
 
 const state = {
   token: { source: "solana", destination: "base", token: "USDC", amount: "100", recipient: "", preference: "best", selected: null },
@@ -18,7 +18,6 @@ const PREFS = Object.entries(PREFERENCES).map(([k, v]) => [k, v.label]);
 export async function renderRouteView(view, ctx, kind) {
   const s = state[kind];
   const { chains, tokens } = ctx;
-  const chainOptions = (value) => chains.map((c) => `<option value="${esc(c.id)}"${c.id === value ? " selected" : ""}>${esc(c.name)}</option>`).join("");
   const isToken = kind === "token";
   // On chain there is one route and single delivery, so preference and multi path do not apply.
   const onChain = dataMode === "chain";
@@ -37,9 +36,9 @@ export async function renderRouteView(view, ctx, kind) {
         <div class="card-head">Request <span class="sub">${isToken ? "Token" : "Message"}</span></div>
         <div class="card-body">
           <div class="pair">
-            <div class="field"><label for="f-src">From</label><div class="sel-chain" id="g-src">${chainGlyph(chains, s.source)}<select class="select" id="f-src" name="source">${chainOptions(s.source)}</select></div></div>
+            <div class="field"><label for="f-src-btn">From</label><div class="sel-chain" id="g-src">${chainPicker(chains, "f-src", s.source, "source")}</div></div>
             <button class="swap" type="button" id="f-swap" aria-label="Swap networks"><span data-icon="swap"></span></button>
-            <div class="field"><label for="f-dst">To</label><div class="sel-chain" id="g-dst">${chainGlyph(chains, s.destination)}<select class="select" id="f-dst" name="destination">${chainOptions(s.destination)}</select></div></div>
+            <div class="field"><label for="f-dst-btn">To</label><div class="sel-chain" id="g-dst">${chainPicker(chains, "f-dst", s.destination, "destination")}</div></div>
           </div>
           <p class="err" id="e-pair" role="alert"></p>
           ${
@@ -113,8 +112,6 @@ export async function renderRouteView(view, ctx, kind) {
   }
 
   function syncHints() {
-    $("#g-src .cg").outerHTML = chainGlyph(chains, s.source);
-    $("#g-dst .cg").outerHTML = chainGlyph(chains, s.destination);
     const dstKind = kindOf(s.destination);
     const placeholder = dstKind === "solana" ? "Solana wallet address" : "0x address";
     if (isToken) {
@@ -272,6 +269,7 @@ export async function renderRouteView(view, ctx, kind) {
   }
 
   /* Bindings */
+  bindChainPickers(view, chains);
   const form = $("#req");
   form.addEventListener("submit", (event) => event.preventDefault());
   $("#f-src").addEventListener("change", (e) => {
@@ -288,8 +286,10 @@ export async function renderRouteView(view, ctx, kind) {
   });
   $("#f-swap").addEventListener("click", (e) => {
     [s.source, s.destination] = [s.destination, s.source];
-    $("#f-src").value = s.source;
-    $("#f-dst").value = s.destination;
+    for (const [id, value] of [["#f-src", s.source], ["#f-dst", s.destination]]) {
+      $(id).value = value;
+      $(id).dispatchEvent(new Event("change")); // repaints the network picker
+    }
     e.currentTarget.classList.toggle("spin");
     syncHints();
     paintErrors();

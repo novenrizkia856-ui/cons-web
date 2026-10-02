@@ -1,4 +1,6 @@
 import { consConfig } from "../config/cons.js";
+import { chains } from "../data/networks.js";
+import { networkIcon } from "../lib/network-icon.js";
 import { candidateRoutes } from "../data/preview.js";
 import { MAIN_PATH } from "../data/lifecycle.js";
 import { initChrome } from "../lib/chrome.js";
@@ -21,6 +23,14 @@ function initTokenCa() {
   document.getElementById("ca-copy").replaceWith(
     copyButton(mint, { label: "Copy token contract address", unavailable: "Address not available yet" }),
   );
+}
+
+/* Network logos: the supported networks strip, and every [data-net] spot. */
+function initNetworks() {
+  document.getElementById("nets-list").innerHTML = chains
+    .map((c) => `<li class="net-chip${c.status === "soon" ? " soon" : ""}" title="${c.name}${c.status === "soon" ? " (soon)" : ""}"><i class="net-ico">${networkIcon(c.id)}</i><span>${c.name}</span></li>`)
+    .join("");
+  document.querySelectorAll("[data-net]").forEach((el) => (el.innerHTML = networkIcon(el.dataset.net)));
 }
 
 /* Route intelligence and comparison share one preference. */
@@ -218,6 +228,7 @@ function initPolicy() {
 }
 
 initTokenCa();
+initNetworks();
 initHero(document.getElementById("hero-console"));
 initFold(document.querySelector("[data-fold]"));
 initPreferencePanels();

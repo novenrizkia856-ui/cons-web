@@ -4,6 +4,14 @@
 .hero .frame { border-top: 0; }
 .hero-top { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: end; gap: 48px; padding-top: 96px; padding-bottom: 64px; }
 .hero-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 26px; }
+.net-ico { display: inline-grid; flex: none; width: 1.15em; height: 1.15em; border-radius: 50%; overflow: hidden; vertical-align: -0.18em; margin-right: 0.4em; }
+.net-ico svg { width: 100%; height: 100%; display: block; }
+.nets { display: flex; align-items: center; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+.nets-label { font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dim); }
+.nets-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.net-chip { display: inline-flex; align-items: center; height: 30px; padding: 0 10px 0 6px; border: 1px solid var(--line-2); border-radius: 999px; background: rgb(var(--ink) / 0.02); font-size: 12.5px; font-weight: 500; color: var(--text); }
+.net-chip .net-ico { width: 18px; height: 18px; margin-right: 6px; vertical-align: 0; }
+.net-chip.soon { opacity: 0.55; }
 .hero-badge { display: inline-flex; align-items: center; gap: 10px; height: 46px; font-size: 14px; font-weight: 500; color: var(--text); padding: 6px 14px 6px 12px; border: 1px solid var(--line-2); border-radius: 12px; background: rgb(var(--ink) / 0.02); }
 .sol-dot { width: 18px; height: 18px; border-radius: 6px; background: conic-gradient(from 200deg, #e8c289, #ab8f64, #3a3a3a, #e8c289); box-shadow: 0 0 0 3px rgb(var(--gold) / 0.08); }
 .hero-side { display: flex; flex-direction: column; gap: 22px; padding-bottom: 6px; max-width: 420px; justify-self: end; width: 100%; }

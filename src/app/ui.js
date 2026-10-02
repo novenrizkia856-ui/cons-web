@@ -1,5 +1,6 @@
 /* Small UI toolkit for the app views. */
 import { icons } from "../lib/icons.js";
+import { networkIcon } from "../lib/network-icon.js";
 import { routeCost, routeEta } from "../services/scoring.js";
 
 export const esc = (value) =>
@@ -140,8 +141,69 @@ export function scoreRing(score) {
 /* Chain glyph: short ticker in a tinted disc. */
 export const chainGlyph = (chains, id) => {
   const chain = chains.find((c) => c.id === id);
-  return `<span class="cg" data-chain="${esc(id)}" aria-hidden="true">${esc(chain?.short ?? String(id).slice(0, 3).toUpperCase())}</span>`;
+  const logo = networkIcon(id);
+  return `<span class="cg${logo ? " logo" : ""}" data-chain="${esc(id)}" aria-hidden="true">${logo || esc(chain?.short ?? String(id).slice(0, 3).toUpperCase())}</span>`;
 };
+
+/**
+ * Network picker: a button showing the selected network's logo and name. The
+ * real <select> stays in the form (hidden) and receives a change event, so
+ * views keep listening to it as before.
+ */
+export function chainPicker(chains, selectId, value, role) {
+  const options = chains.map((c) => `<option value="${esc(c.id)}"${c.id === value ? " selected" : ""}>${esc(c.name)}</option>`).join("");
+  return `<button type="button" class="net-btn" id="${esc(selectId)}-btn" data-for="${esc(selectId)}" data-role="${esc(role)}" aria-haspopup="dialog">${chainGlyph(chains, value)}<span class="net-name">${esc(chainName(chains, value))}</span><span data-icon="chevron"></span></button>
+    <select class="select" id="${esc(selectId)}" name="${esc(role)}" hidden tabindex="-1" aria-hidden="true">${options}</select>`;
+}
+
+export function bindChainPickers(root, chains) {
+  root.querySelectorAll(".net-btn").forEach((button) => {
+    const select = root.querySelector(`#${button.dataset.for}`);
+    const paint = () => {
+      button.querySelector(".cg").outerHTML = chainGlyph(chains, select.value);
+      button.querySelector(".net-name").textContent = chainName(chains, select.value);
+    };
+    select.addEventListener("change", paint);
+    button.addEventListener("click", () => openNetworkPicker(chains, select.value, button.dataset.role, (id) => {
+      select.value = id;
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+      button.focus();
+    }));
+  });
+}
+
+function openNetworkPicker(chains, current, role, onPick) {
+  const item = (c) => {
+    const soon = c.status === "soon";
+    const on = c.id === current;
+    return `<button type="button" class="net-item${on ? " on" : ""}" data-id="${esc(c.id)}" data-name="${esc(c.name.toLowerCase())}" ${soon ? "disabled" : ""} aria-pressed="${on}">
+      ${chainGlyph(chains, c.id)}<span class="net-name">${esc(c.name)}</span>${soon ? `<span class="badge">Soon</span>` : ""}${on ? `<span class="net-check" data-icon="check"></span>` : ""}</button>`;
+  };
+  const group = (title, list) => (list.length ? `<div class="net-group"><p class="net-label">${title}</p><div class="net-list">${list.map(item).join("")}</div></div>` : "");
+  openModal(
+    `<div class="m-head"><h2 id="modal-title">Select network</h2><p>Choose the ${esc(role)} network.</p></div>
+    <div class="m-body net-pick">
+      <label class="search net-search"><span class="sr-only">Search networks</span><span data-icon="search"></span><input class="input" id="net-q" placeholder="Search networks" autocomplete="off"></label>
+      ${group("Popular networks", chains.filter((c) => c.popular))}
+      ${group("All networks", chains.filter((c) => !c.popular))}
+    </div>`,
+    (body) => {
+      const q = body.querySelector("#net-q");
+      q.focus();
+      q.addEventListener("input", () => {
+        const term = q.value.trim().toLowerCase();
+        body.querySelectorAll(".net-item").forEach((el) => (el.hidden = Boolean(term) && !el.dataset.name.includes(term)));
+        body.querySelectorAll(".net-group").forEach((g) => (g.hidden = ![...g.querySelectorAll(".net-item")].some((el) => !el.hidden)));
+      });
+      body.querySelectorAll(".net-item:not([disabled])").forEach((el) =>
+        el.addEventListener("click", () => {
+          closeModal();
+          onPick(el.dataset.id);
+        }),
+      );
+    },
+  );
+}
 
 /** Route option list. Returns markup; selection is bound by bindRoutes. */
 export function routeList(routes, selectedId) {
