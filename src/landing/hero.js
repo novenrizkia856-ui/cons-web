@@ -6,6 +6,15 @@ import { candidateRoutes } from "../data/preview.js";
 import { stateLabel } from "../data/lifecycle.js";
 import { PREFERENCES, formatEta, formatUsd, rankRoutes } from "../services/scoring.js";
 import { createLoop, reducedMotion, whenVisible } from "../lib/motion.js";
+import { chains } from "../data/networks.js";
+import { networkIcon, networkMark, tokenIcon } from "../lib/network-icon.js";
+
+const netId = (name) => chains.find((c) => c.name === name)?.id;
+/* Request field value with its network or token logo. */
+const fieldValue = (key, value) => {
+  const logo = key === "From" || key === "To" ? networkIcon(netId(value)) : key === "Asset" ? tokenIcon(value) : "";
+  return logo ? `<i class="f-ico">${logo}</i>${value}` : value;
+};
 
 const NS = "http://www.w3.org/2000/svg";
 const PREF_ORDER = ["best", "cost", "speed", "security"];
@@ -34,13 +43,20 @@ const el = (name, attrs = {}, parent) => {
   return node;
 };
 
-function node(parent, { x, y, w, h, label, sub, cls = "" }) {
+/* icon: "net:<id>" for a network mark, "cons" for the Cons mark. It sits at
+   the left of the node and the label centres in the space that remains. */
+function node(parent, { x, y, w, h, label, sub, cls = "", icon = "" }) {
   const g = el("g", { class: `node ${cls}`, transform: `translate(${x} ${y})` }, parent);
   el("rect", { x: -w / 2, y: -h / 2, width: w, height: h, rx: 10 }, g);
-  const t = el("text", { y: sub ? -1 : 4.5 }, g);
+  const size = 18;
+  const iconX = -w / 2 + 10 + size / 2;
+  if (icon === "cons") el("image", { href: "/brand/cons-mark-black.png", x: iconX - size / 2, y: -size / 2, width: size, height: size }, g);
+  else if (icon) g.insertAdjacentHTML("beforeend", networkMark(icon.slice(4), size, iconX, 0));
+  const tx = icon ? (iconX + size / 2 + w / 2) / 2 : 0;
+  const t = el("text", { x: tx, y: sub ? -1 : 4.5 }, g);
   t.textContent = label;
   if (sub) {
-    const s = el("text", { y: 13, class: "sub" }, g);
+    const s = el("text", { x: tx, y: 13, class: "sub" }, g);
     s.textContent = sub;
   }
   return g;
@@ -65,21 +81,21 @@ export function initHero(root) {
     const nodes = el("g", {}, svg);
 
     const ys = routes.length === 4 ? [52, 124, 196, 268] : routes.map((_, i) => 60 + i * (200 / Math.max(1, routes.length - 1)));
-    const srcHub = el("path", { class: "edge", d: "M106 160 L162 160" }, edges);
+    const srcHub = el("path", { class: "edge", d: "M123 160 L155 160" }, edges);
     const legs = routes.map((route, i) => {
       const y = ys[i];
       return {
         route,
-        a: el("path", { class: "edge", d: `M238 160 C290 160 285 ${y} 325 ${y}` }, edges),
-        b: el("path", { class: "edge", d: `M435 ${y} C470 ${y} 468 160 490 160` }, edges),
+        a: el("path", { class: "edge", d: `M255 160 C292 160 288 ${y} 325 ${y}` }, edges),
+        b: el("path", { class: "edge", d: `M435 ${y} C455 ${y} 450 160 468 160` }, edges),
         node: node(nodes, { x: 380, y, w: 110, h: 38, label: route.provider }),
       };
     });
-    const src = node(nodes, { x: 58, y: 160, w: 96, h: 46, label: scenario.from, sub: "source" });
-    const hub = node(nodes, { x: 200, y: 160, w: 76, h: 46, label: "Cons", sub: "router", cls: "hub" });
-    const dst = node(nodes, { x: 538, y: 160, w: 96, h: 46, label: scenario.to, sub: "destination" });
-    const ring = el("rect", { class: "ring", x: 490, y: 137, width: 96, height: 46, rx: 12, style: "transform-origin: 538px 160px" }, svg);
-    const packet = el("circle", { class: "packet", r: 4.5, cx: 106, cy: 160 }, svg);
+    const src = node(nodes, { x: 64, y: 160, w: 118, h: 46, label: scenario.from, sub: "source", icon: `net:${netId(scenario.from)}` });
+    const hub = node(nodes, { x: 205, y: 160, w: 100, h: 46, label: "Cons", sub: "router", cls: "hub", icon: "cons" });
+    const dst = node(nodes, { x: 530, y: 160, w: 124, h: 46, label: scenario.to, sub: "destination", icon: `net:${netId(scenario.to)}` });
+    const ring = el("rect", { class: "ring", x: 468, y: 137, width: 124, height: 46, rx: 12, style: "transform-origin: 530px 160px" }, svg);
+    const packet = el("circle", { class: "packet", r: 4.5, cx: 123, cy: 160 }, svg);
 
     rowsHost.replaceChildren(
       ...routes.map((route) => {
@@ -98,7 +114,7 @@ export function initHero(root) {
     );
 
     q("title").textContent = scenario.title;
-    q("fields").innerHTML = scenario.fields.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("");
+    q("fields").innerHTML = scenario.fields.map(([k, v]) => `<div><dt>${k}</dt><dd>${fieldValue(k, v)}</dd></div>`).join("");
     q("r-src").textContent = scenario.from;
     parts = { scenario, routes, srcHub, legs, src, hub, dst, ring, packet };
   }
