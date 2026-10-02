@@ -113,8 +113,31 @@ export function getExecutionReadiness({ walletAddress, request } = {}) {
   if (status === "paused") return { status, label: "Paused", detail: "New requests are paused. Existing requests can still be refunded." };
   if (request && request.sourceChain !== "solana") return { status: "wrong-source", label: "Start on Solana", detail: "Requests are created on Solana. Choose Solana as the source network." };
   if (request?.token && !consConfig.assetMints[request.token]) return { status: "asset", label: "Asset unavailable", detail: `${request.token} is not enabled on ${consConfig.networkLabel} yet.` };
+  if (request && !routeIsLive(request)) return { status: "route-soon", label: "Opening soon", detail: `${liveRoutesText()} Other routes open soon.` };
+  if (request?.token && consConfig.maxTokenAmount && Number(request.amount) > consConfig.maxTokenAmount)
+    return { status: "amount", label: "Above limit", detail: `Up to ${consConfig.maxTokenAmount} ${request.token} per request for now.` };
   if (!walletAddress) return { status: "no-wallet", label: "Connect wallet", detail: "Connect a Solana wallet to sign the request." };
   return { status: "ready", label: "Sign and submit", detail: "Your wallet will ask you to approve the transaction." };
+}
+
+/* Only routes the operator delivers today can be submitted (PUBLIC_CONS_LIVE_ROUTES). */
+function routeIsLive(request) {
+  const routes = consConfig.liveRoutes;
+  if (!routes.length) return true;
+  return routes.some((r) =>
+    request.token ? r.kind === "token" && r.token === request.token && r.destination === request.destinationChain : r.kind === "message" && r.destination === request.destinationChain,
+  );
+}
+
+const chainLabel = (id) => id.charAt(0).toUpperCase() + id.slice(1);
+
+/** "Live now: USDC to Base, up to 1 USDC." */
+export function liveRoutesText() {
+  const routes = consConfig.liveRoutes;
+  if (!routes.length) return "";
+  const parts = routes.map((r) => (r.kind === "token" ? `${r.token} to ${chainLabel(r.destination)}` : `messages to ${chainLabel(r.destination)}`));
+  const cap = consConfig.maxTokenAmount ? `, up to ${consConfig.maxTokenAmount} per request` : "";
+  return `Live now: ${parts.join(", ")}${cap}.`;
 }
 
 function assertReady(request) {

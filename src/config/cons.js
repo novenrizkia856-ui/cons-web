@@ -30,6 +30,8 @@ const DEFAULTS = Object.freeze({
   rpcUrl: "",
   explorerBaseUrl: "https://explorer.solana.com",
   assetMints: "",
+  liveRoutes: "",
+  maxTokenAmount: "",
 });
 
 const BASE58 = /^[1-9A-HJ-NP-Za-km-z]+$/;
@@ -44,6 +46,21 @@ const clean = (value) => (typeof value === "string" ? value.trim() : "");
 /** Token CA rule: null or blank means "Coming Soon" (""); anything else is used as written. */
 export function resolveTokenCa(value) {
   return value === null || value === undefined ? "" : String(value).trim();
+}
+
+/**
+ * Routes the Cons operator delivers today, as "token:USDC:base,message:base".
+ * Empty means no restriction. Only these can be submitted, so no request is
+ * created that nobody will route.
+ */
+export function parseLiveRoutes(value) {
+  return Object.freeze(
+    clean(value)
+      .split(",")
+      .map((part) => part.split(":").map(clean))
+      .filter(([kind]) => kind === "token" || kind === "message")
+      .map(([kind, a, b]) => (kind === "token" ? { kind, token: (a || "").toUpperCase(), destination: b || "" } : { kind, destination: a || "" })),
+  );
 }
 
 /**
@@ -81,6 +98,8 @@ export function createConsConfig(env = {}, tokenCa = TOKEN_CA) {
     rpcUrl: clean(env.PUBLIC_SOLANA_RPC_URL) || DEFAULTS.rpcUrl || SOLANA_NETWORKS[network].rpcUrl,
     explorerBaseUrl: trimSlash(clean(env.PUBLIC_SOLANA_EXPLORER_URL) || DEFAULTS.explorerBaseUrl),
     assetMints: parseAssetMints(clean(env.PUBLIC_CONS_ASSET_MINTS) || DEFAULTS.assetMints),
+    liveRoutes: parseLiveRoutes(clean(env.PUBLIC_CONS_LIVE_ROUTES) || DEFAULTS.liveRoutes),
+    maxTokenAmount: Number(clean(env.PUBLIC_CONS_MAX_TOKEN_AMOUNT) || DEFAULTS.maxTokenAmount) || 0,
   });
 }
 

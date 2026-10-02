@@ -12,7 +12,7 @@ import { payloadBytes, validateAddress, validateAmount, validatePair } from "../
 const KEY = "1".repeat(32);
 
 test("config defaults leave every integration unconfigured", () => {
-  const c = createConsConfig({});
+  const c = createConsConfig({}, "");
   assert.equal(c.network, "mainnet-beta");
   assert.equal(c.programId, "");
   assert.equal(c.tokenMintAddress, "");
@@ -26,7 +26,7 @@ test("config reads PUBLIC_ env values and rejects malformed addresses", () => {
     PUBLIC_SOLANA_NETWORK: "devnet",
     PUBLIC_CONS_PROGRAM_ID: KEY,
     PUBLIC_CONS_API_URL: "https://api.example.com/",
-  });
+  }, "");
   assert.equal(c.network, "devnet");
   assert.equal(c.rpcUrl, "https://api.devnet.solana.com");
   assert.equal(c.programId, KEY);
@@ -116,7 +116,8 @@ test("token CA: empty or null shows Coming Soon, anything else is shown as writt
   const { resolveTokenCa } = await import("../src/config/cons.js");
   const { TOKEN_CA } = await import("../src/config/token.js");
   assert.equal(typeof TOKEN_CA === "string" || TOKEN_CA === null, true);
-  for (const blank of ["", "   ", null, undefined]) assert.equal(createConsConfig({}, blank).tokenMintAddress, "");
+  for (const blank of ["", "   ", null]) assert.equal(createConsConfig({}, blank).tokenMintAddress, "");
+  assert.equal(resolveTokenCa(undefined), "");
   assert.equal(resolveTokenCa("  So11111111111111111111111111111111111111112 "), "So11111111111111111111111111111111111111112");
   assert.equal(createConsConfig({}, "anything at all").tokenMintAddress, "anything at all");
 });

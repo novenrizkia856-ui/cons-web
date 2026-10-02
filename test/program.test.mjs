@@ -129,6 +129,16 @@ test("payload bytes for text and hex", () => {
   assert.throws(() => payloadToBytes("0xabc", "hex"));
 });
 
+test("live routes parse token and message entries", async () => {
+  const { parseLiveRoutes } = await import("../src/config/cons.js");
+  assert.deepEqual(
+    parseLiveRoutes("token:usdc:base, message:base, junk"),
+    [{ kind: "token", token: "USDC", destination: "base" }, { kind: "message", destination: "base" }],
+  );
+  assert.equal(parseLiveRoutes("").length, 0);
+  assert.equal(createConsConfig({ PUBLIC_CONS_MAX_TOKEN_AMOUNT: "1" }).maxTokenAmount, 1);
+});
+
 test("asset mints come from config and invalid entries are dropped", () => {
   assert.deepEqual({ ...parseAssetMints(`usdc=${KEY58}, USDT=bad, =${KEY58}`) }, { USDC: KEY58 });
   assert.deepEqual({ ...createConsConfig({}).assetMints }, {});

@@ -2,7 +2,7 @@
 import { copyText } from "../../lib/clipboard.js";
 import { payloadBytes, validateAddress, validateAmount, validatePair } from "../../lib/validate.js";
 import { consConfig, integration } from "../../config/cons.js";
-import { errorText, getExecutionReadiness, prepareMessage, prepareTransfer, refreshProgramState } from "../../services/program.js";
+import { errorText, getExecutionReadiness, liveRoutesText, prepareMessage, prepareTransfer, refreshProgramState } from "../../services/program.js";
 import { dataMode, quoteRoutes } from "../../services/routing.js";
 import { PREFERENCES, routeCost, routeEta } from "../../services/scoring.js";
 import * as wallet from "../../services/wallet.js";
@@ -30,7 +30,7 @@ export async function renderRouteView(view, ctx, kind) {
       <p>${isToken ? (onChain ? "Move a supported asset from Solana to another network." : "Move a supported asset. Cons compares every eligible route.") : "Send an arbitrary payload to a program or contract."}</p></div>
     </div>
     ${dataMode === "preview" ? `<div class="notice"><span data-icon="info"></span><span>Routes below use illustrative preview data. ${integration.hasProgram ? "The request itself is created on Solana." : "No transaction is created from this page yet."}</span></div>` : ""}
-    ${onChain ? `<div class="notice neutral"><span data-icon="info"></span><span>Your request is recorded on Solana ${esc(consConfig.networkLabel)}. The Cons operator then assigns the provider.</span></div>` : ""}
+    ${onChain ? `<div class="notice neutral"><span data-icon="info"></span><span>Your request is recorded on Solana ${esc(consConfig.networkLabel)}. The Cons operator then assigns the provider. ${esc(liveRoutesText())}</span></div>` : ""}
     <div class="work">
       <form class="card" id="req" novalidate>
         <div class="card-head">Request <span class="sub">${isToken ? "Token" : "Message"}</span></div>
