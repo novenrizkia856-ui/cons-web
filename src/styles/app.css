@@ -428,3 +428,10 @@ a.tr:hover { background: linear-gradient(90deg, rgb(var(--gold) / 0.06), transpa
 @media (prefers-reduced-motion: reduce) {
   .route[aria-checked="true"]::after { animation: none; }
 }
+
+/* Offline notice, shown since the Cons Program was closed. */
+.offline { min-height: calc(100vh - 60px); display: grid; place-items: center; padding: 32px 16px; }
+.offline-card { width: min(460px, 100%); padding: 36px 32px; display: grid; justify-items: center; gap: 12px; text-align: center; }
+.offline-card .vh-icon { margin-bottom: 8px; }
+.offline-card h1 { font-size: 26px; font-weight: 500; letter-spacing: -0.035em; color: var(--strong); }
+.offline-card p { font-size: 14.5px; color: var(--muted); margin-bottom: 10px; }

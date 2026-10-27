@@ -23,47 +23,22 @@
 
 <header class="app-top">
   <a class="brand" href="/" aria-label="Cons home"><img src="/brand/cons-wordmark-black.png" alt="Cons" width="719" height="192"></a>
-  <span class="app-sep" aria-hidden="true">/</span>
-  <span class="app-crumb" id="crumb">Token routing</span>
   <div class="app-top-right">
-    <span class="tag plain net" id="net-pill" title="Solana cluster"></span>
-    <span class="tag" id="mode-pill"></span>
-    <a class="btn btn-ghost btn-sm hide-sm" data-link="docs" href="/docs/">Docs</a>
-    <button class="btn btn-primary btn-sm" id="wallet-btn" type="button"><span data-icon="wallet"></span><span class="wl">Connect wallet</span></button>
+    <a class="btn btn-ghost btn-sm" data-link="docs" href="/docs/">Docs</a>
   </div>
 </header>
 
 <div class="app-aura" aria-hidden="true"></div>
-<div class="app-shell">
-  <aside class="side" aria-label="App navigation">
-    <nav class="side-nav">
-      <p class="side-label">Route</p>
-      <a href="#/token" data-route="token"><span data-icon="token"></span>Token routing</a>
-      <a href="#/message" data-route="message"><span data-icon="message"></span>Message routing</a>
-      <p class="side-label">Monitor</p>
-      <a href="#/activity" data-route="activity"><span data-icon="activity"></span>Activity</a>
-      <a href="#/receipt" data-route="receipt"><span data-icon="receipt"></span>Receipts</a>
-      <a href="#/providers" data-route="providers"><span data-icon="providers"></span>Providers</a>
-    </nav>
-    <div class="side-status" aria-label="Integration status">
-      <p class="side-label">Integration</p>
-      <dl id="integration"></dl>
-    </div>
-  </aside>
-
-  <main class="view" id="view" tabindex="-1" aria-live="polite"></main>
-</div>
-
-<div class="modal" id="modal" hidden>
-  <div class="modal-backdrop" data-close></div>
-  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-    <button class="modal-x" type="button" data-close aria-label="Close"><span data-icon="close"></span></button>
-    <div id="modal-body"></div>
+<main class="offline" id="view" tabindex="-1">
+  <div class="card offline-card">
+    <span class="vh-icon"><span data-icon="lock"></span></span>
+    <span class="vh-eyebrow mono">Cons App</span>
+    <h1>The Cons app is offline.</h1>
+    <p>Routing is no longer available. No new requests can be created.</p>
+    <a class="btn btn-primary" href="/">Back to home</a>
   </div>
-</div>
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
+</main>
 
-<noscript><p class="noscript">The Cons app needs JavaScript.</p></noscript>
-<script type="module" src="/src/app/main.js"></script>
+<script type="module" src="/src/app/offline.js"></script>
 </body>
 </html>
